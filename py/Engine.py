@@ -13,7 +13,7 @@ class Engine(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.screenManager = ScreenManager(transition=NoTransition())
+        self.screenManager = ScreenManager()
         self.screenManager.add_widget(LoadingScreen())
 
         self.clock = Clock

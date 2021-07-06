@@ -7,17 +7,20 @@ from functools import partial
 
 from kivy.uix.screenmanager import ScreenManager, NoTransition
 
-from gfx.screens.LoadingScreen import LoadingScreen as LoadingScreen
-from gfx.screens.StartingScreen import StartingScreen as StartingScreen
+from gfx.screens.LoadingScreen import LoadingScreen as loadingScreen
+from gfx.screens.StartingScreen import StartingScreen as startingScreen
+
+from pynput import keyboard
 
 from kivy.core.audio import SoundLoader
 
 import time
 import os 
+import sys
 import random
 import threading
 
-class Engine(App):
+class Engine(App): #settings, clock, screenManager, audioThread, GUIThread
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -25,29 +28,50 @@ class Engine(App):
         self.settings = Settings()
         self.load_settings()
 
-        self.screenManager = ScreenManager()
-        self.screenManager.add_widget(LoadingScreen())
-
         self.clock = Clock
 
     def build(self, **kwargs):
 
+        def processStartingScreen(self, dt):
+            
+            self.screenManager.add_widget(startingScreen())
+            self.screenManager.current = 'Starting Screen'
+
         super().__init__(**kwargs)
+        
+        self.screenManager = ScreenManager()
+        self.screenManager.add_widget(loadingScreen())
+        self.clock.schedule_once(partial(processStartingScreen, self), -1)
+
         return self.screenManager
 
     def start(self):
 
-        def process_starting_screen(self, dt):
-            
-            self.screenManager.add_widget(StartingScreen())
-            self.screenManager.current = 'Starting Screen'
+        self.audioThread = threading.Timer(0.5, self.manage_audio)
+        self.audioThread.start()
+        
+        self.GUIThread = threading.Timer(0.1, self.run)
+        self.GUIThread.start()
 
-        self.clock.schedule_once(partial(process_starting_screen, self), -1)
+        self.userControlsThread = threading.Timer(0.1, self.getInput)
+        self.userControlsThread.start()
+
+    def getInput(self):
         
-        audioThread = threading.Timer(0.5, self.manage_audio)
-        audioThread.start()
-        
-        self.run()
+        global threads 
+        threads = [self.audioThread, self.userControlsThread, self.GUIThread]
+
+        def on_press(key):
+            pass
+
+        def on_release(key):
+
+            if key == keyboard.Key.esc:
+                for thread in threads: thread.cancel()
+                sys.exit()
+
+        with keyboard.Listener(on_press=on_press, on_release=on_release) as listener: 
+            listener.join()
 
     def change_settings(self):
         pass

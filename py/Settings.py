@@ -6,8 +6,9 @@ class Settings:
 
     def __init__(self):
 
-        self.parameters = ['appVersion', 'appLanguage', 'windowFullscreen', 'windowWidth', 'windowHeight']
-        self.default_values = ['Default', 'EN', False, 1024, 600]
+        self.parameters = ['appVersion', 'appLanguage', 'audioVolume', 'audioExcludedTracks', 
+        'windowFullscreen', 'windowWidth', 'windowHeight']
+        self.default_values = ['Default', 'EN', 1, [3,4,5], False, 1024, 600]
 
         try: 
             self.file = JSONFile('appSettings')

@@ -47,31 +47,41 @@ class Engine(App): #settings, clock, screenManager, audioThread, GUIThread
 
     def start(self):
 
-        self.audioThread = threading.Timer(0.5, self.manage_audio)
-        self.audioThread.start()
-        
-        self.GUIThread = threading.Timer(0.1, self.run)
+        self.GUIThread = threading.Timer(0.5, self.run)
         self.GUIThread.start()
+        self.GUIThread.stopFlag = False
 
-        self.userControlsThread = threading.Timer(0.1, self.getInput)
+        self.audioThread = threading.Timer(0.5, self.manage_audio)
+        self.audioThread.daemon = True
+        self.audioThread.start()
+        self.audioThread.stopFlag = False
+
+        self.userControlsThread = threading.Timer(0.5, self.getInput)
+        self.userControlsThread.daemon = True
         self.userControlsThread.start()
+        self.userControlsThread.stopFlag = False
+
+        self.timeThread = None
+        self.internetThread = None
 
     def getInput(self):
         
-        global threads 
-        threads = [self.audioThread, self.userControlsThread, self.GUIThread]
+        while not self.userControlsThread.stopFlag:
+        
+            global threads 
+            threads = [self.audioThread, self.userControlsThread, self.GUIThread]
 
-        def on_press(key):
-            pass
+            def on_press(key):
+                pass
 
-        def on_release(key):
+            def on_release(key):
 
-            if key == keyboard.Key.esc:
-                for thread in threads: thread.cancel()
-                sys.exit()
+                if key == keyboard.Key.esc:
+                    for thread in threads: thread.stopFlag = True
+                    sys.exit()
 
-        with keyboard.Listener(on_press=on_press, on_release=on_release) as listener: 
-            listener.join()
+            with keyboard.Listener(on_press=on_press, on_release=on_release) as listener: 
+                listener.join()
 
     def change_settings(self):
         pass
@@ -103,11 +113,13 @@ class Engine(App): #settings, clock, screenManager, audioThread, GUIThread
             audioFile.play()
             time.sleep(audioFile.length)
 
-        while True:
+        
+        while not self.audioThread.stopFlag:
+
             order = get_order()
             order = delete_prohibited_tracks(order, self.settings.audioExcludedTracks)
             for index in order:
-                play_audio(index, self.settings.audioVolume)
+                    play_audio(index, self.settings.audioVolume)
 
     def time_tick(self):
         pass

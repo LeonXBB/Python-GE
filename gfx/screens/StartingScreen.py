@@ -11,7 +11,7 @@ class StartingScreen(Screen):
 
         self.layout = FloatLayout()
 
-        self.layout.appNameLabel = Label(text='AIRWORDS', pos=(40,115))
+        self.layout.appNameLabel = Label(text='AIRWORDS', size_hint=(.2, .2), pos_hint={'center_x':0.5, 'center_y':0.8})
 
         self.layout.add_widget(self.layout.appNameLabel)
 

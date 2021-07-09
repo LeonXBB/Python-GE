@@ -24,6 +24,7 @@ class JSONFile:
         json_file.close()
         
         return json_data.get(parameter)
+            
 
     def set_value(self):
         pass

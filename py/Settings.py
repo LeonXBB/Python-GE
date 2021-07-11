@@ -30,7 +30,7 @@ class Settings:
     def apply_values(self):
 
         Config.set('graphics', 'fullscren', self.windowFullscreen)
-        Config.set('graphics', 'resizable', True)
+        Config.set('graphics', 'resizable', False)
         Config.set('graphics', 'width', self.windowWidth)
         Config.set('graphics', 'height', self.windowHeight)
 

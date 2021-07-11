@@ -9,7 +9,7 @@ from kivy.uix.gridlayout import GridLayout
 
 from kivy.graphics import Line
 
-def drawText(widget, text, texture='fontTexture', instructions='fontInstructions', minGrid=(None, None)):
+def drawText(widget, text, texture='fontTexture', instructions='fontInstructions', minGrid=(None, None), separator=' '):
     
     def getTexture(texture):
         
@@ -73,12 +73,12 @@ def drawText(widget, text, texture='fontTexture', instructions='fontInstructions
     texture = getTexture(texture)
     widget = getGrid(widget, len(text), minGrid)
     
-    print(widget.grid.__dict__)
-    '''for subWidget in widget.grid.widgets:
+    for letter in text:
+        subWidget = GridLayout()
+        widget.add_widget(subWidget)
         with subWidget.canvas.before:
-            for letter in text:
-                letterInstruction = getInstruction(instructions, letter)
-                exec(letterInstruction + ')')'''
+            letterInstruction = getInstruction(instructions, letter)
+            exec(letterInstruction)
 
 
 def showIntro(engine, dt):
@@ -88,7 +88,14 @@ def showIntro(engine, dt):
 
 def GUIThread(engine):
     
-    engine.screenManager.add_widget(loadingScreen())
-    engine.screenManager.current = 'Loading Screen'
+    screenManagerPassedFlag = False 
+
+    while not screenManagerPassedFlag:
+        try:
+            engine.screenManager.add_widget(loadingScreen())
+            engine.screenManager.current = 'Loading Screen'
+            screenManagerPassedFlag = True
+        except:
+            pass
 
     engine.clock.schedule_once(partial(showIntro, engine), -1)

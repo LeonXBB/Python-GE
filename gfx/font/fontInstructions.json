@@ -1,3 +1,5 @@
 {
-    "A": "Line(bezier=[0,0,100,100,50,70], **texture"
+    "A": "Line(bezier=[0,0,50,100,100,0], **texture)",
+    "B": "Line(bezier=[0,0,55,55,10,90], **texture)",
+    "C": "Line(bezier=[30,30,80,80], **texture"
 }

@@ -6,7 +6,7 @@ import time
 
 def audioThread(engine):
 
-    def get_order():
+    def getOrder():
 
         for root, dirs, files in os.walk('audio'):
             audioFilesNumber = len(files)
@@ -15,22 +15,22 @@ def audioThread(engine):
 
         return audioNumbersList
 
-    def delete_prohibited_tracks(order, excluded_tracks):
+    def deleteProhibitedTracks(order, excluded_tracks):
         
         rv = list(set(order).symmetric_difference(set(excluded_tracks)))            
         random.shuffle(rv)
         return rv
 
-    def play_audio(index, volume):
+    def playAudio(index, volume):
         
         audioFile = SoundLoader.load('audio/' + str(index) + '.wav')
         audioFile.volume = volume
         audioFile.play()
-        time.sleep(audioFile.length)
+        if audioFile.length > 0: time.sleep(audioFile.length)
     
     while not engine.audioThread.stopFlag:
 
-        order = get_order()
-        order = delete_prohibited_tracks(order, engine.settings.audioExcludedTracks)
+        order = getOrder()
+        order = deleteProhibitedTracks(order, engine.settings.audioExcludedTracks)
         for index in order:
-                play_audio(index, engine.settings.audioVolume)
+                playAudio(index, engine.settings.audioVolume)

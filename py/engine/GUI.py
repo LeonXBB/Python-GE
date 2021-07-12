@@ -7,7 +7,6 @@ from gfx.screens.LoadingScreen import LoadingScreen as loadingScreen
 from gfx.screens.StartingScreen import StartingScreen as startingScreen
 
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.label import Label
 
 from kivy.graphics import *
 
@@ -67,8 +66,6 @@ class GUIThread(threadClass):
                 rv = (midValues[0], midValues[1])
             elif relative:
                 pass
-
-        print(rv)
 
         return rv
 
@@ -134,17 +131,25 @@ class GUIThread(threadClass):
 
         def putLetter(self, letter, texture, widget, dt):
 
-            subWidget = Label()
-            widget.add_widget(subWidget)
-            with subWidget.canvas.after:
+            widget.grid.add_widget(GridLayout(cols=1, rows=1))
+            with widget.grid.children[-1].canvas.after:
                 letterCoordinates = getCoordinates(coordinates, letter)
                 exec(letterCoordinates)
+
+            print(widget.grid.children)
+
+            print(widget.grid)
+            print(widget.grid.children[-1].pos)
+            print(widget.grid.children[-1].size)
+            print(widget.grid.children[-1].x)
 
         texture = getTexture(texture)
         widget = getGrid(widget, len(text), minGrid)
 
         for letter in text:
-            self.engine.clock.schedule_once(partial(putLetter, self, letter, texture, widget),1)
+            self.engine.clock.schedule_once(partial(putLetter, self, letter, texture, widget),0)
+
+        
 
     def pushPastIntro(self, dt):
 

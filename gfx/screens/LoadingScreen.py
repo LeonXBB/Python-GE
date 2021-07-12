@@ -1,10 +1,11 @@
-from kivy.uix.screenmanager import Screen
+from ..appScreen import appScreen
 
 from kivy.uix.label import Label
 
-class LoadingScreen(Screen):
+class LoadingScreen(appScreen):
 
-    def __init__(self, **kw):
-        super().__init__(**kw)
+    def load(self):
+
         self.name = 'Loading Screen'
+        
         self.add_widget(Label(text="FOR DEVELOPING PURPOSES ONLY"))

@@ -2,7 +2,7 @@ from ..Settings import Settings as Settings
 
 from py.engine.GUI import GUIThread as GUIThread
 from py.engine.Audio import audioThread as audioThread
-from py.engine.Input import inputThread as inputThread
+from py.engine.Controls import controlsThread as controlsThread
 
 from kivy.app import App
 
@@ -24,9 +24,10 @@ class Engine(App): #settings, clock, screenManager, threads
 
         self.clock = Clock
 
-        self.GUIThread = threading.Timer(0.5, GUIThread, args=(self,))
-        self.audioThread = threading.Timer(0.5, audioThread, args=(self,))
-        self.controlsThread = threading.Timer(0.5, inputThread, args=(self,))
+        self.GUIThread = GUIThread(self)
+        self.audioThread = audioThread(self)
+        self.controlsThread = controlsThread(self)
+
         self.timeThread = threading.Timer(0.5, self.threadPass, args=(self,))
         self.internetThread = threading.Timer(0.5, self.threadPass, args=(self,))
 
@@ -45,8 +46,6 @@ class Engine(App): #settings, clock, screenManager, threads
     def start(self):
 
         for thread in self.threads:
-            thread.daemon = True
-            thread.stopFlag = False
             thread.start()
 
         self.run()

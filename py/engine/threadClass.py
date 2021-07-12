@@ -10,9 +10,9 @@ class threadClass(threading.Timer):
         
         self.daemon = True
         self.threadStopFlag = False
-        self.threadLoopOverWritenFlag = False
+        self.threadLoopOverWrittenFlag = False
 
     def loop(self, dt):
 
-        while not self.threadLoopOverWritenFlag:
+        while not self.threadLoopOverWrittenFlag:
             pass

@@ -8,6 +8,8 @@ class controlsThread(threadClass):
     
     def loop(self, dt):
             
+            self.threadLoopOverWrittenFlag = True
+
             while not self.engine.controlsThread.threadStopFlag:
             
                 global threads 

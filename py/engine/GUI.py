@@ -7,12 +7,72 @@ from gfx.screens.LoadingScreen import LoadingScreen as loadingScreen
 from gfx.screens.StartingScreen import StartingScreen as startingScreen
 
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
 
 from kivy.graphics import *
 
 class GUIThread(threadClass):
     
-    def drawText(self, widget, text, texture='fontTexture', instructions='fontInstructions', minGrid=(None, None), separator=' '):
+    def switchCoordinates(self, values, systemIn, systemOut, relative=False, relativity=None):
+
+        # pixels, (geographical) coordinates, percentage
+
+        if systemIn == 'pixels':
+            
+            if not relative:
+
+                dx = self.engine.settings.windowWidth / 100
+                dy = self.engine.settings.windowHeight / 100
+
+                percentX = values[0] / dx
+                percentY = values[1] / dy 
+
+                midValues = [percentX, percentY]
+            
+            elif relative:
+                pass
+
+        elif systemIn == 'coordinates':
+            pass
+
+        elif systemIn == 'percentage':
+            
+            if not relative:
+                midValues = [values[0], values[1]]
+
+            elif relative:
+                pass
+
+        if systemOut == 'pixels':
+            
+            if not relative:
+            
+                dx = self.engine.settings.windowWidth / 100
+                dy = self.engine.settings.windowHeight / 100
+            
+                pixelX = midValues[0] * dx
+                pixelY = midValues[1] * dy
+
+                rv = (pixelX, pixelY)
+
+            elif relative:
+                pass
+
+        elif systemOut == 'coordinates':
+            pass
+
+        elif systemOut == 'percentage':
+            
+            if not relative:
+                rv = (midValues[0], midValues[1])
+            elif relative:
+                pass
+
+        print(rv)
+
+        return rv
+
+    def putText(self, widget, text, texture='fontTexture', coordinates='fontCoordinates', minGrid=(None, None), separator=' '):
         
         def getTexture(texture):
             
@@ -59,55 +119,61 @@ class GUIThread(threadClass):
 
             return widget
 
-        def getInstruction(instructions, letter):
+        def getCoordinates(coordinates, letter):
 
-                if type(instructions) == str:
-                    instructions = JSONFile(instructions).get_value(letter)
+                if type(coordinates) == str:
+                    coordinates = JSONFile(coordinates).get_value(letter)
 
-                elif type(instructions) == dict:
-                    instructions.get(letter)
+                elif type(coordinates) == dict:
+                    coordinates.get(letter)
 
                 else:
                     raise TypeError
 
-                return instructions
+                return coordinates
+
+        def putLetter(self, letter, texture, widget, dt):
+
+            subWidget = Label()
+            widget.add_widget(subWidget)
+            with subWidget.canvas.after:
+                letterCoordinates = getCoordinates(coordinates, letter)
+                exec(letterCoordinates)
 
         texture = getTexture(texture)
         widget = getGrid(widget, len(text), minGrid)
-        
+
         for letter in text:
-            subWidget = GridLayout()
-            widget.add_widget(subWidget)
-            with subWidget.canvas.before:
-                letterInstruction = getInstruction(instructions, letter)
-                #self.engine.clock.schedule_once(partial(exec, (letterInstruction), 0))
-                exec(letterInstruction)
+            self.engine.clock.schedule_once(partial(putLetter, self, letter, texture, widget),1)
 
-    def showIntro(self, dt):
-
-        import time 
-        time.sleep(5)
+    def pushPastIntro(self, dt):
 
         sS = startingScreen(self.engine)
         sS.load()
         self.engine.screenManager.add_widget(sS)
         self.engine.screenManager.current = 'Starting Screen'
 
+    def showIntro(self):
+
+        lS = loadingScreen(self.engine)
+        lS.load()
+        self.engine.screenManager.add_widget(lS)
+        self.engine.screenManager.current = 'Loading Screen'
+        import time 
+        time.sleep(2.5)
+
     def loop(self, dt):
         
-        self.threadLoopOverWritenFlag = True
+        self.threadLoopOverWrittenFlag = True
 
         self.screenManagerPassedFlag = False 
 
         while not self.screenManagerPassedFlag:
             try:
-                lS = loadingScreen(self.engine)
-                lS.load()
-                self.engine.screenManager.add_widget(lS)
-                self.engine.screenManager.current = 'Loading Screen'
+                self.showIntro()
                 self.screenManagerPassedFlag = True
             except:
                 pass
 
-        self.engine.clock.schedule_once(self.showIntro, -1)
+        self.engine.clock.schedule_once(self.pushPastIntro, -1)
 

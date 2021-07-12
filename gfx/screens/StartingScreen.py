@@ -10,7 +10,7 @@ class StartingScreen(appScreen):
         self.layout = FloatLayout()
 
         self.layout.appName = FloatLayout(size_hint=(.2, .2), pos_hint={'center_x':0.5, 'center_y':0.8})
-        self.engine.GUIThread.drawText(self.layout.appName, 'AB')
+        self.engine.GUIThread.putText(self.layout.appName, 'A')
 
         self.layout.add_widget(self.layout.appName)
         self.add_widget(self.layout)

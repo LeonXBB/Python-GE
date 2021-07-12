@@ -32,7 +32,7 @@ class audioThread(threadClass):
             audioFile.play()
             if audioFile.length > 0: time.sleep(audioFile.length)
         
-        self.threadLoopOverWritenFlag = True
+        self.threadLoopOverWrittenFlag = True
 
         while not self.engine.audioThread.threadStopFlag:
 

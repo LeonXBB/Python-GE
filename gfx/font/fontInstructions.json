@@ -1,5 +1,0 @@
-{
-    " ": "pass",
-    "A": "Line(bezier=[10,0,0,50,50,100], **texture)\nLine(bezier=[50,100,100,50,90,0], **texture)\nLine(bezier=[10,50,50,40,90,50], **texture)",
-    "B": "Line(bezier=[10,0,0,50,10,100], **texture)"
-}

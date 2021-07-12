@@ -1,0 +1,7 @@
+{
+    " ": "pass",
+    
+    "A": "Line(bezier=[*self.switchCoordinates((10,0), 'percentage', 'pixels'), *self.switchCoordinates((0,50), 'percentage', 'pixels'), *self.switchCoordinates((50,100), 'percentage', 'pixels')], **texture)\nLine(bezier=[*self.switchCoordinates((50,100), 'percentage', 'pixels'), *self.switchCoordinates((100,50), 'percentage', 'pixels'), *self.switchCoordinates((90,0), 'percentage', 'pixels')], **texture)\nLine(bezier=[*self.switchCoordinates((10,50), 'percentage', 'pixels'), *self.switchCoordinates((50,40), 'percentage', 'pixels'), *self.switchCoordinates((90,50), 'percentage', 'pixels')], **texture)",
+
+    "B": "Line(bezier=[10,0,0,50,10,100], **texture)\nLine(bezier=[10,100,50,100,50,50], **texture)"
+}

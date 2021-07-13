@@ -12,60 +12,29 @@ from kivy.graphics import *
 
 class GUIThread(threadClass):
     
-    def switchCoordinates(self, values, systemIn, systemOut, relative=False, relativity=None):
+    def switchCoordinates(self, setCoords, systemIn, systemOut, widgetSize=None, widgetPos=None, coordsLimits=None):
 
-        # pixels, (geographical) coordinates, percentage
+        #systemsIn/Out: pixels, (geographical) coordinates, percentage
+        #coordsLimits reserved for GPS
 
-        if systemIn == 'pixels':
-            
-            if not relative:
+        rv = []
+        coords = []
 
-                dx = self.engine.settings.windowWidth / 100
-                dy = self.engine.settings.windowHeight / 100
+        if widgetSize is None: widgetSize = (self.engine.settings.windowWidth, self.engine.settings.windowHeight)
+        if widgetPos is None: widgetPos = (0,0)
 
-                percentX = values[0] / dx
-                percentY = values[1] / dy 
+        dx = widgetSize[0] / 100
+        dy = widgetSize[1] / 100
 
-                midValues = [percentX, percentY]
-            
-            elif relative:
-                pass
+        for i in range(0, len(setCoords), 2):
+            coords = [setCoords[i], setCoords[i+1]]
 
-        elif systemIn == 'coordinates':
-            pass
-
-        elif systemIn == 'percentage':
-            
-            if not relative:
-                midValues = [values[0], values[1]]
-
-            elif relative:
-                pass
-
-        if systemOut == 'pixels':
-            
-            if not relative:
-            
-                dx = self.engine.settings.windowWidth / 100
-                dy = self.engine.settings.windowHeight / 100
-            
-                pixelX = midValues[0] * dx
-                pixelY = midValues[1] * dy
-
-                rv = (pixelX, pixelY)
-
-            elif relative:
-                pass
-
-        elif systemOut == 'coordinates':
-            pass
-
-        elif systemOut == 'percentage':
-            
-            if not relative:
-                rv = (midValues[0], midValues[1])
-            elif relative:
-                pass
+            if systemIn == 'percentage':
+                
+                if systemOut == 'pixels':
+                    
+                    rv.append(coords[0] * dx + widgetPos[0]) 
+                    rv.append(coords[1] * dy + widgetPos[1])
 
         return rv
 
@@ -86,33 +55,36 @@ class GUIThread(threadClass):
 
         def getGrid(widget, textLength, minGrid):
             
-            widget.grid = GridLayout()
+            #widget.grid = GridLayout()
 
             if minGrid[0] is not None and minGrid[1] is not None:
                 if textLength <= minGrid[0] * minGrid[1]:
-                    widget.grid.cols = minGrid[0]
-                    widget.grid.rows = minGrid[1]
+                    widget.cols = minGrid[0]
+                    widget.rows = minGrid[1]
             
                 else:
                     while textLength > minGrid[0] * minGrid[1]:
-                        widget.grid.cols += 1
-                        widget.grid.rows += 1
+                        widget.cols += 1
+                        widget.rows += 1
 
             elif (minGrid[0] is not None and minGrid[1] is None) or (minGrid[1] is not None and minGrid[0] is None):
                 setAxis = ((minGrid[0], 'cols') if minGrid[1] is None else (minGrid[1]), 'rows')
-                setattr(widget.grid, setAxis[1], setAxis[0])
-                setattr(widget.grid, ('rows' if setAxis[1] == 'cols' else 'cols'), (textLength // setAxis[0] + (textLength % setAxis[0] > 0)))
+                setattr(widget, setAxis[1], setAxis[0])
+                setattr(widget, ('rows' if setAxis[1] == 'cols' else 'cols'), (textLength // setAxis[0] + (textLength % setAxis[0] > 0)))
 
             elif minGrid[0] is None and minGrid[1] is None:
                 
-                widget.grid.cols = 0
-                widget.grid.rows = 0
+                widget.cols = 0
+                widget.rows = 0
 
-                while textLength > widget.grid.cols * widget.grid.rows:
-                    widget.grid.cols += 1
-                    widget.grid.rows += 1
+                while textLength > widget.cols * widget.rows:
+                    widget.cols += 1
+                    widget.rows += 1
 
-            widget.add_widget(widget.grid)
+            for i in range(widget.cols * widget.rows):
+                widget.add_widget(GridLayout())
+
+            #widget.add_widget(widget.grid)
 
             return widget
 
@@ -131,37 +103,27 @@ class GUIThread(threadClass):
 
         def putLetter(self, letter, texture, widget, dt):
 
-            widget.grid.add_widget(GridLayout(cols=1, rows=1))
-            with widget.grid.children[-1].canvas.after:
+            with widget.canvas.after:
                 letterCoordinates = getCoordinates(coordinates, letter)
                 exec(letterCoordinates)
-
-            print(widget.grid.children)
-
-            print(widget.grid)
-            print(widget.grid.children[-1].pos)
-            print(widget.grid.children[-1].size)
-            print(widget.grid.children[-1].x)
 
         texture = getTexture(texture)
         widget = getGrid(widget, len(text), minGrid)
 
-        for letter in text:
-            self.engine.clock.schedule_once(partial(putLetter, self, letter, texture, widget),0)
+        print(widget.pos, widget.size)
 
-        
-
+        for i in range(len(text)):
+            self.engine.clock.schedule_once(partial(putLetter, self, text[i], texture, widget.children[i]),0)
+      
     def pushPastIntro(self, dt):
 
-        sS = startingScreen(self.engine)
-        sS.load()
+        sS = startingScreen(self.engine, True)
         self.engine.screenManager.add_widget(sS)
         self.engine.screenManager.current = 'Starting Screen'
 
     def showIntro(self):
 
-        lS = loadingScreen(self.engine)
-        lS.load()
+        lS = loadingScreen(self.engine, True)
         self.engine.screenManager.add_widget(lS)
         self.engine.screenManager.current = 'Loading Screen'
         import time 

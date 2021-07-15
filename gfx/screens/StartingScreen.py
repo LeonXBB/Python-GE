@@ -18,4 +18,4 @@ class StartingScreen(appScreen):
 
     def putText(self):
         
-        Text(self.engine, self.layout.appName, 'ABCDEF', maxGrid=(None, 2)).show()
+        Text(self.engine, self.layout.appName, 'AF', maxGrid=(None, 2)).show()

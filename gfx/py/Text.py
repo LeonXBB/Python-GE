@@ -21,8 +21,6 @@ class Text():
         self.texture = self.getTexture()
         self.widget = self.getGrid()
 
-        print(self.widget.size, self.widget.pos)
-
     def getTexture(self): 
             
             if type(self.texture) == str:
@@ -103,8 +101,6 @@ class Text():
             return self.widget
 
     def putSymbol(self, symbol, widgetToPutInto):
-
-        print(widgetToPutInto.pos)
 
         with widgetToPutInto.canvas.before:
             letterCoordinates = self.getCoordinate(symbol)

@@ -3,6 +3,8 @@ from gfx.py.appScreen import appScreen
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scatterlayout import ScatterLayout
 
+from gfx.py.Text import Text
+
 class StartingScreen(appScreen):
 
     def load(self):
@@ -16,4 +18,4 @@ class StartingScreen(appScreen):
 
     def putText(self):
         
-        self.engine.GUIThread.putText(self.layout.appName, 'ABCDEF', maxGrid=(None, 2))
+        Text(self.engine, self.layout.appName, 'ABCDEF', maxGrid=(None, 2)).show()

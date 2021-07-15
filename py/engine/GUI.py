@@ -6,7 +6,7 @@ from functools import partial
 from gfx.screens.LoadingScreen import LoadingScreen as loadingScreen
 from gfx.screens.StartingScreen import StartingScreen as startingScreen
 
-from kivy.uix.gridlayout import GridLayout
+from kivy.uix.gridlayout import GridLayout, GridLayoutException
 
 from kivy.graphics import *
 
@@ -38,7 +38,7 @@ class GUIThread(threadClass):
 
         return rv
 
-    def putText(self, widget, text, texture='fontTexture', coordinates='fontCoordinates', minGrid=(None, None), separator=' '):
+    def putText(self, widget, text, texture='fontTexture', coordinates='fontCoordinates', minGrid=(None, None), maxGrid=(None,None), separator=' '):
         
         def getTexture(texture):
             
@@ -53,40 +53,47 @@ class GUIThread(threadClass):
 
                 return texture
 
-        def getGrid(widget, textLength, minGrid):
-            
-            #widget.grid = GridLayout()
+        def getGrid(gridWidget, textToPut, minGrid, maxGrid, separator):
 
-            if minGrid[0] is not None and minGrid[1] is not None:
-                if textLength <= minGrid[0] * minGrid[1]:
-                    widget.cols = minGrid[0]
-                    widget.rows = minGrid[1]
-            
-                else:
-                    while textLength > minGrid[0] * minGrid[1]:
-                        widget.cols += 1
-                        widget.rows += 1
+            textToPut = textToPut.split(separator)
 
-            elif (minGrid[0] is not None and minGrid[1] is None) or (minGrid[1] is not None and minGrid[0] is None):
-                setAxis = ((minGrid[0], 'cols') if minGrid[1] is None else (minGrid[1]), 'rows')
-                setattr(widget, setAxis[1], setAxis[0])
-                setattr(widget, ('rows' if setAxis[1] == 'cols' else 'cols'), (textLength // setAxis[0] + (textLength % setAxis[0] > 0)))
+            textLength = (len(textToPut) - 1) * len(separator)
+            for i in range(len(textToPut)):
+                textLength += len(textToPut[i])
 
-            elif minGrid[0] is None and minGrid[1] is None:
-                
-                widget.cols = 0
-                widget.rows = 0
+            xLimit = (minGrid[0] if minGrid[0] is not None else 0, maxGrid[0] if maxGrid[0] is not None else 1000)
+            yLimit = (minGrid[1] if minGrid[1] is not None else 0, maxGrid[1] if maxGrid[1] is not None else 1000)
 
-                while textLength > widget.cols * widget.rows:
-                    widget.cols += 1
-                    widget.rows += 1
+            if textLength > (xLimit[1] * yLimit[1]):
+                raise GridLayoutException
+            else:
 
-            for i in range(widget.cols * widget.rows):
-                widget.add_widget(GridLayout())
+                rv = [xLimit[0], yLimit[0]]
 
-            #widget.add_widget(widget.grid)
+                stopFlag = False
 
-            return widget
+                while not stopFlag:
+                    while rv[0] < xLimit[1]:
+                        while rv[1] < yLimit[1]:
+                            if rv[0]*rv[1] >= textLength:
+                                stopFlag = True
+                                break
+                            else:
+                                rv[1] +=1
+                    
+                        if not stopFlag:
+                            rv[1] = yLimit[0]
+                            rv[0] += 1
+                        else:
+                            break
+
+                gridWidget.rows = rv[0]
+                gridWidget.cols = rv[1]
+
+                for i in range(textLength):
+                    gridWidget.add_widget(GridLayout())
+
+                return gridWidget
 
         def getCoordinates(coordinates, letter):
 
@@ -108,12 +115,10 @@ class GUIThread(threadClass):
                 exec(letterCoordinates)
 
         texture = getTexture(texture)
-        widget = getGrid(widget, len(text), minGrid)
-
-        print(widget.pos, widget.size)
+        widget = getGrid(widget, text, minGrid, maxGrid, separator)
 
         for i in range(len(text)):
-            self.engine.clock.schedule_once(partial(putLetter, self, text[i], texture, widget.children[i]),0)
+            self.engine.clock.schedule_once(partial(putLetter, self, text[i], texture, widget.children[len(widget.children)-1-i]),0)
       
     def pushPastIntro(self, dt):
 

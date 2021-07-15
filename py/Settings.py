@@ -8,7 +8,7 @@ class Settings:
 
         self.parameters = ['appVersion', 'appLanguage', 'audioVolume', 'audioExcludedTracks', 
         'windowFullscreen', 'windowWidth', 'windowHeight']
-        self.default_values = ['Default', 'EN', 1, [3,4,5], False, 1024, 600]
+        self.default_values = ['Default', 'EN', 1, [3,4,5], True, 1280, 720]
 
         try: 
             self.file = JSONFile('appSettings')
@@ -29,8 +29,8 @@ class Settings:
 
     def apply_values(self):
 
-        Config.set('graphics', 'fullscren', self.windowFullscreen)
-        Config.set('graphics', 'resizable', True)
+        Config.set('graphics', 'fullscreen', self.windowFullscreen)
+        Config.set('graphics', 'resizable', False)
         Config.set('graphics', 'width', self.windowWidth)
         Config.set('graphics', 'height', self.windowHeight)
 

@@ -1,5 +1,4 @@
-from kivy.uix.relativelayout import RelativeLayout
-from ..appScreen import appScreen
+from gfx.py.appScreen import appScreen
 
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scatterlayout import ScatterLayout

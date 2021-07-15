@@ -1,4 +1,4 @@
-from ..appScreen import appScreen
+from gfx.py.appScreen import appScreen
 
 from kivy.uix.label import Label
 

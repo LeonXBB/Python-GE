@@ -1,4 +1,4 @@
-from py.engine.threadClass import threadClass
+from engine.threadClass import threadClass
 
 from kivy.core.audio import SoundLoader
 

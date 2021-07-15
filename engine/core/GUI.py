@@ -1,6 +1,5 @@
-from py.engine.threadClass import threadClass
-
-from py.JSONFile import JSONFile
+from engine.threadClass import threadClass
+from engine.JSONFile import JSONFile
 
 from functools import partial
 

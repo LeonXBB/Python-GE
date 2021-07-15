@@ -1,8 +1,8 @@
 from ..Settings import Settings as Settings
 
-from py.engine.GUI import GUIThread as GUIThread
-from py.engine.Audio import audioThread as audioThread
-from py.engine.Controls import controlsThread as controlsThread
+from engine.core.GUI import GUIThread as GUIThread
+from engine.core.Audio import audioThread as audioThread
+from engine.core.Controls import controlsThread as controlsThread
 
 from kivy.app import App
 

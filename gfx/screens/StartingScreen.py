@@ -11,10 +11,10 @@ class StartingScreen(appScreen):
 
         self.name = 'Starting Screen'
         self.layout = RelativeLayout()
-        self.layout.appName = GridLayout(size=(self.engine.settings.windowWidth / 5, self.engine.settings.windowHeight / 5), pos=(self.engine.settings.windowWidth / 5 * 2, self.engine.settings.windowHeight / 5 * 4))
+        self.layout.appName = GridLayout(size=(100, 100), pos=(100,100))
         self.layout.add_widget(self.layout.appName)
         self.add_widget(self.layout)
            
     def putText(self):
 
-        self.engine.GUIThread.putText(self.layout.appName, 'ABCDEF')
+        self.engine.GUIThread.putText(self.layout.appName, 'A!BCDEF')

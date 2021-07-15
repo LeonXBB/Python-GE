@@ -1,4 +1,5 @@
 from py.engine.threadClass import threadClass
+
 from py.JSONFile import JSONFile
 
 from functools import partial
@@ -87,11 +88,22 @@ class GUIThread(threadClass):
                         else:
                             break
 
-                gridWidget.rows = rv[0]
-                gridWidget.cols = rv[1]
+                gridWidget.cols = rv[0]
+                gridWidget.rows = rv[1] 
+
+                dSizeX = gridWidget.size[0] / rv[0]
+                dSizeY = gridWidget.size[1] / rv[1]
+
+                currentCoordinates = [0, rv[1]-1]
 
                 for i in range(textLength):
-                    gridWidget.add_widget(GridLayout())
+
+                    gridWidget.add_widget(GridLayout(size=(dSizeX, dSizeY), pos=(dSizeX * currentCoordinates[0] + gridWidget.pos[0], dSizeY * currentCoordinates[1] + gridWidget.pos[1])))
+
+                    currentCoordinates[0] += 1
+                    if currentCoordinates[0] >= rv[0]: 
+                        currentCoordinates[1] -= 1
+                        currentCoordinates[0] = 0
 
                 return gridWidget
 
@@ -108,7 +120,7 @@ class GUIThread(threadClass):
 
                 return coordinates
 
-        def putLetter(self, letter, texture, widget, dt):
+        def putSymbol(self, letter, texture, widget):
 
             with widget.canvas.after:
                 letterCoordinates = getCoordinates(coordinates, letter)
@@ -118,8 +130,8 @@ class GUIThread(threadClass):
         widget = getGrid(widget, text, minGrid, maxGrid, separator)
 
         for i in range(len(text)):
-            self.engine.clock.schedule_once(partial(putLetter, self, text[i], texture, widget.children[len(widget.children)-1-i]),0)
-      
+            putSymbol(self, text[i], texture, widget.children[len(widget.children)-1-i])
+
     def pushPastIntro(self, dt):
 
         sS = startingScreen(self.engine, True)

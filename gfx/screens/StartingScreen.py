@@ -1,3 +1,4 @@
+from kivy.uix.relativelayout import RelativeLayout
 from ..appScreen import appScreen
 
 from kivy.uix.gridlayout import GridLayout
@@ -9,10 +10,11 @@ class StartingScreen(appScreen):
 
         self.name = 'Starting Screen'
         self.layout = ScatterLayout(size_hint=(1,1), pos_hint={"x": 0, "y": 0})
-        self.layout.appName = GridLayout(size=(500, 200), pos_hint={"center_x": 0.5, "center_y": 0.5})
+        self.layout.appName = GridLayout(size=(500, 200), pos=((self.engine.settings.windowWidth / 10)*2.9, (self.engine.settings.windowHeight / 10)*7))
+        
         self.layout.add_widget(self.layout.appName)
         self.add_widget(self.layout)
-           
-    def putText(self):
 
-        self.engine.GUIThread.putText(self.layout.appName, '!ABC DEF', maxGrid=(2, None))
+    def putText(self):
+        
+        self.engine.GUIThread.putText(self.layout.appName, 'ABCDEF', maxGrid=(None, 2))

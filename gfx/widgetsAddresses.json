@@ -1,0 +1,8 @@
+{
+	"Loading Screen": "self.engine.screenManager.get_screen('Loading Screen')",
+	"Loading Screen Layout": "self.engine.screenManager.get_screen('Loading Screen').layout",
+
+	"Starting Screen": "self.engine.screenManager.get_screen('Starting Screen')",
+	"Starting Screen Layout": "self.engine.screenManager.get_screen('Starting Screen').layout",
+	"Starting Screen AppNameText": "self.engine.screenManager.get_screen('Starting Screen').layout.appName"
+}

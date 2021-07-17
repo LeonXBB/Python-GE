@@ -19,7 +19,7 @@ class JSONFile:
             
     def get_value(self, parameter):
 
-        json_file = open(self.address)
+        json_file = open(self.address, errors='ignore')
         json_data = json.load(json_file)
         json_file.close()
         

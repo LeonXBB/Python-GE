@@ -1,25 +1,31 @@
 from engine.JSONFile import JSONFile
 
+from gfx.py.Widget import Widget
+
 from kivy.uix.gridlayout import GridLayout, GridLayoutException
 
 from kivy.graphics import *
 
-class Text():
+class Text(Widget):
 
-    def __init__(self, engine, widget, text, texture='fontTexture', coordinatesAddress='fontCoordinates', minGrid=(None, None), maxGrid=(None,None), separator=' ') -> None:
+    def __init__(self, **kwargs):
 
-        self.engine = engine
+        super().__init__(**kwargs)
+        
+        if not hasattr(self, 'engine'): raise EnvironmentError
+        if not hasattr(self, "size"): self.size = (self.engine.settings.windowWidth, self.engine.settings.windowHeight)
+        if not hasattr(self, "pos"): self.pos = (0, 0)
+        if not hasattr(self, 'text'): self.text = ''
+        if not hasattr(self, "texture"): self.texture = 'fontTexture'
+        if not hasattr(self, "coordinatesAddress"): self.coordinatesAddress = 'fontCoordinates'
+        if not hasattr(self, "minGrid"): self.minGrid = (None, None)
+        if not hasattr(self, "maxGrid"): self.maxGrid = (None, None)
+        if not hasattr(self, "separator"): self.separator = ' '
 
-        self.widget = widget
-        self.text = text
-        self.texture = texture
-        self.coordinatesAddress = coordinatesAddress
-        self.minGrid = minGrid
-        self.maxGrid = maxGrid
-        self.separator = separator
+    def unpack(self):
 
-        self.texture = self.getTexture()
-        self.widget = self.getGrid()
+        self.getTexture()
+        self.getGrid()
 
     def getTexture(self): 
             
@@ -31,8 +37,6 @@ class Text():
 
             else:
                 raise TypeError
-
-            return self.texture
 
     def getCoordinate(self, symbol):
 
@@ -47,7 +51,8 @@ class Text():
 
     def getGrid(self):
 
-        
+        self.widget = GridLayout(size=self.size, pos=self.switchCoordinates(self.pos, 'percentage','pixels'))
+
         dividedText = self.text.split(self.separator)
 
         textLength = (len(dividedText) - 1) * len(self.separator)
@@ -90,23 +95,23 @@ class Text():
 
             for i in range(textLength):
 
-                self.widget.add_widget(GridLayout(size=(dSizeX, dSizeY), pos=(dSizeX * currentCoordinates[0] + self.widget.pos[0], dSizeY * currentCoordinates[1] + self.widget.pos[1])))
+                self.widget.add_widget(Widget(engine=self.engine, size=(dSizeX, dSizeY), pos=(dSizeX * currentCoordinates[0] + self.widget.pos[0], dSizeY * currentCoordinates[1] + self.widget.pos[1])), canvas='before')
 
                 currentCoordinates[0] += 1
                 if currentCoordinates[0] >= rv[0]: 
                     currentCoordinates[1] -= 1
                     currentCoordinates[0] = 0
 
-
-            return self.widget
+            self.add_widget(self.widget)
 
     def putSymbol(self, symbol, widgetToPutInto):
-
-        with widgetToPutInto.canvas.before:
-            letterCoordinates = self.getCoordinate(symbol)
-            exec(letterCoordinates)
-
-    def show(self):
         
+        with widgetToPutInto.canvas.after:
+            exec(self.getCoordinate(symbol))
+            
+    def show(self):
+
+        self.unpack()
+
         for i in range(len(self.text)):
             self.putSymbol(self.text[i], self.widget.children[len(self.widget.children)-1-i])

@@ -61,8 +61,8 @@ class Text(Widget):
         for i in range(len(dividedText)):
             textLength += len(dividedText[i])
 
-        sizeXLimit = (self.minSize[0] if self.minSize[0] is not None else 1, self.maxSize[0] if self.maxSize[0] is not None else 1) 
-        sizeYLimit = (self.minSize[1] if self.minSize[1] is not None else 1, self.maxSize[1] if self.maxSize[1] is not None else 1) 
+        sizeXLimit = (self.minSize[0] if self.minSize[0] is not None else 1, self.maxSize[0] if self.maxSize[0] is not None else self.size[0]) 
+        sizeYLimit = (self.minSize[1] if self.minSize[1] is not None else 1, self.maxSize[1] if self.maxSize[1] is not None else self.size[1]) 
 
         colsLimit = (self.minGrid[0] if self.minGrid[0] is not None else 1, self.maxGrid[0] if self.maxGrid[0] is not None else self.size[0])
         rowsLimit = (self.minGrid[1] if self.minGrid[1] is not None else 1, self.maxGrid[1] if self.maxGrid[1] is not None else self.size[1])
@@ -74,32 +74,30 @@ class Text(Widget):
         
         else:
 
-            rv = [colsLimit[1], rowsLimit[1]]
+            rv = [colsLimit[0], rowsLimit[0]]
 
             stopFlag = False
 
             while not stopFlag:
-                while rv[0] < colsLimit[1]:
-                    while rv[1] < rowsLimit[1]:
+                while rv[1] < rowsLimit[1]:
+                    while rv[0] < colsLimit[1]:
                         if rv[0]*rv[1] >= textLength:
                             stopFlag = True
                             break
                         else:
-                            rv[1] +=1
+                            rv[0] +=1
                 
                     if not stopFlag:
-                        rv[1] = rowsLimit[0]
-                        rv[0] += 1
+                        rv[0] = rowsLimit[0]
+                        rv[1] += 1
                     else:
                         break
-
-            print('RV: ', str(rv))
 
             self.widget.cols = rv[0]
             self.widget.rows = rv[1] 
 
-            dSizeX = self.widget.size[0] / rv[0]
-            dSizeY = self.widget.size[1] / rv[1]
+            dSizeX = sizeXLimit[1] / rv[0]
+            dSizeY = sizeYLimit[1] / rv[1]
 
             currentCoordinates = [0, rv[1]-1]
 

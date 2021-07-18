@@ -5,7 +5,7 @@
 
     "1": "Line(bezier=self.switchCoordinates((0,55,35,75,50,100), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,100,40,50,50,5), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,100,60,50,50,5), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((0,10,50,0,100,10), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
-    "2": "Line(bezier=self.switchCoordinates((0,65,50,100,50,25), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((25,20,50,25,75,20), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((25,25,50,20,75,25), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
+    "2": "Line(bezier=self.switchCoordinates((0,70,20,100,60,90), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((60,90,70,60,30,10), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((30,10,0,35,75,10), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
     "3": "pass",
 
@@ -27,11 +27,11 @@
 
     "!": "Line(bezier=self.switchCoordinates((50,100,40,80,60,60,50,20), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,100,60,80,40,60,50,20), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((45,10,50,20,55,10), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((45,10,50,0,55,10), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
     
-    "@": "pass",
+    "@": "",
 
     "\"": "",
     
-    "#": "pass",
+    "#": "",
 
     "№": "",
 
@@ -67,25 +67,25 @@
 
     "'": "",
 
-    "|": "",
+    "|": "Line(bezier=self.switchCoordinates((50,0,60,40,50,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,0,40,40,50,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,50,60,60,50,100), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,50,40,60,50,100), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
-    "\\": "",
+    "\\": "Line(bezier=self.switchCoordinates((100,0,90,40,50,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,50,10,60,0,100), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
     "<": "",
 
     ">": "",
 
-    "*": "",
+    "*": "Line(bezier=self.switchCoordinates((20,50,50,50,50,80), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,80,50,50,80,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((80,50,50,50,50,20), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,20,50,50,20,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
-    "/": "",
+    "/": "Line(bezier=self.switchCoordinates((0,0,10,40,50,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,50,90,60,100,100), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
-    "-": "",
+    "-": "Line(bezier=self.switchCoordinates((0,50,25,25,50,50,75,75,100,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
-    "+": "",
+    "+": "Line(bezier=self.switchCoordinates((0,50,40,50,50,40), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,40,60,50,100,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((0,50,40,50,50,60), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,60,60,50,100,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,0,50,40,40,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((40,50,50,60,50,100), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,0,50,40,60,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((60,50,50,60,50,100), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
-    ",": "",
+    ",": "Line(bezier=self.switchCoordinates((50,10,40,0,30,0), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
-    ".": "",
+    ".": "Line(bezier=self.switchCoordinates((45,10,50,0,55,10), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
     "A": "Line(bezier=self.switchCoordinates((25,0,15,50,50,100), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((50,100,85,50,75,0), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((26,50,50,40,74,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((26,50,50,60,74,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 

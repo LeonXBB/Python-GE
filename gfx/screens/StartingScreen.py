@@ -11,7 +11,7 @@ class StartingScreen(appScreen):
         self.name = 'Starting Screen'
         self.layout = ScatterLayout(size_hint=(1,1), pos_hint={"x": 0, "y": 0})
         #self.layout.appName = Text(engine=self.engine, size=(500, 200), pos=(35,65), text='!~ABCDEFG', maxGrid=(None, 3))
-        self.layout.appName = Text(engine=self.engine, size=(900, 900), pos=(5,5), text='01`~!ABCDEF', maxSize=[200, 150])
+        self.layout.appName = Text(engine=self.engine, size=(1800, 900), pos=(5,5), text='012`~!|\*/-+,.ABCDEF', maxSize=[400, 150])
 
         self.layout.add_widget(self.layout.appName)
         self.add_widget(self.layout)

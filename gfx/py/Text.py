@@ -109,6 +109,8 @@ class Text(Widget):
 
             if not checkValidity(self, textLength): raise GridLayoutException
 
+            if textLength % 2 != 0: textLength += 1
+
             possibleGrids = []
             for x in range(1, int(sqrt(textLength)+1)):
                 if not (textLength % x):
@@ -119,7 +121,8 @@ class Text(Widget):
 
             for possibleGrid in possibleGrids:
                 if (self.maxGrid[0] is None or possibleGrid[0] <= self.maxGrid[0]) and (self.maxGrid[1] is None or possibleGrid[1] <= self.maxGrid[1]):
-                    rv.append(possibleGrid)
+                    if (self.minGrid[0] is None or possibleGrid[0] >= self.minGrid[0]) and (self.minGrid[1] is None or possibleGrid[1] >= self.minGrid[1]):
+                        rv.append(possibleGrid)
 
             rv = sorted(rv, key=sortFunction)
 
@@ -127,13 +130,10 @@ class Text(Widget):
 
         def calculateSize(self, grid):
             
-            if self.minSize[0] is not None:
-                if grid[0] * self.minSize[0] > self.size[0]:
-                    return False
-            
-            if self.minSize[1] is not None:
-                if grid[1] * self.minSize[1] > self.size[1]:
-                    return False
+            for i in range(2):
+                if self.minSize[i] is not None:
+                    if grid[i] * self.minSize[i] > self.size[i]:
+                        return False
 
             gridSize = [0, 0]
 

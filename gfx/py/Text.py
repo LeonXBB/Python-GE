@@ -20,6 +20,8 @@ class Text(Widget):
         if not hasattr(self, "coordinatesAddress"): self.coordinatesAddress = 'fontCoordinates'
         if not hasattr(self, "minGrid"): self.minGrid = (None, None)
         if not hasattr(self, "maxGrid"): self.maxGrid = (None, None)
+        if not hasattr(self, "minSize"): self.minSize = (None, None)
+        if not hasattr(self, "maxSize"): self.maxSize = (None, None)
         if not hasattr(self, "separator"): self.separator = ' '
 
     def unpack(self):
@@ -59,20 +61,26 @@ class Text(Widget):
         for i in range(len(dividedText)):
             textLength += len(dividedText[i])
 
-        xLimit = (self.minGrid[0] if self.minGrid[0] is not None else 0, self.maxGrid[0] if self.maxGrid[0] is not None else 1000)
-        yLimit = (self.minGrid[1] if self.minGrid[1] is not None else 0, self.maxGrid[1] if self.maxGrid[1] is not None else 1000)
+        sizeXLimit = (self.minSize[0] if self.minSize[0] is not None else 1, self.maxSize[0] if self.maxSize[0] is not None else 1) 
+        sizeYLimit = (self.minSize[1] if self.minSize[1] is not None else 1, self.maxSize[1] if self.maxSize[1] is not None else 1) 
 
-        if textLength > (xLimit[1] * yLimit[1]):
-            raise GridLayoutException
+        colsLimit = (self.minGrid[0] if self.minGrid[0] is not None else 1, self.maxGrid[0] if self.maxGrid[0] is not None else self.size[0])
+        rowsLimit = (self.minGrid[1] if self.minGrid[1] is not None else 1, self.maxGrid[1] if self.maxGrid[1] is not None else self.size[1])
+       
+        if (textLength > (colsLimit[1] * rowsLimit[1])) or (colsLimit[0] > self.size[0] / sizeXLimit[0]) or (colsLimit[1] < self.size[0] / sizeXLimit[1]) \
+            or (rowsLimit[0] > self.size[1] / sizeYLimit[0]) or (rowsLimit[1] < self.size[1] / sizeYLimit[1]):
+            
+            raise GridLayoutException 
+        
         else:
 
-            rv = [xLimit[0], yLimit[0]]
+            rv = [colsLimit[1], rowsLimit[1]]
 
             stopFlag = False
 
             while not stopFlag:
-                while rv[0] < xLimit[1]:
-                    while rv[1] < yLimit[1]:
+                while rv[0] < colsLimit[1]:
+                    while rv[1] < rowsLimit[1]:
                         if rv[0]*rv[1] >= textLength:
                             stopFlag = True
                             break
@@ -80,10 +88,12 @@ class Text(Widget):
                             rv[1] +=1
                 
                     if not stopFlag:
-                        rv[1] = yLimit[0]
+                        rv[1] = rowsLimit[0]
                         rv[0] += 1
                     else:
                         break
+
+            print('RV: ', str(rv))
 
             self.widget.cols = rv[0]
             self.widget.rows = rv[1] 

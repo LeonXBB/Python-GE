@@ -29,6 +29,13 @@ class GUIThread(threadClass):
                     rv.append(coords[0] * dx + widgetPos[0]) 
                     rv.append(coords[1] * dy + widgetPos[1])
 
+            elif systemIn == 'pixels':
+
+                if systemOut == 'percentage':
+
+                    rv.append((coords[0] - widgetPos[0]) / dx)
+                    rv.append((coords[1] - widgetPos[1]) / dy)
+
         return rv
 
     def pushPastIntro(self, dt):

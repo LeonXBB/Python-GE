@@ -25,11 +25,13 @@ class Text(Widget):
         if not hasattr(self, "minSize"): self.minSize = [None, None]
         if not hasattr(self, "maxSize"): self.maxSize = [None, None]
         if not hasattr(self, "separator"): self.separator = ' '
+        if not hasattr(self, "padding"): self.padding = [None, None, None, None]
+        if not hasattr(self, "spacing"): self.spacing = [None, None]
 
     def unpack(self):
 
         self.getTexture()
-        self.getGrid()
+        self.getWidgetReady()
 
     def getTexture(self): 
             
@@ -42,7 +44,7 @@ class Text(Widget):
             else:
                 raise TypeError
 
-    def getCoordinate(self, symbol):
+    def getInstruction(self, symbol):
 
             if type(self.coordinatesAddress) == str:
                 rv = JSONFile(self.coordinatesAddress).get_value(symbol)
@@ -53,10 +55,10 @@ class Text(Widget):
 
             return rv
 
-    def getGrid(self):
+    def getWidgetReady(self):
 
         def init(self):
-            
+
             self.widget = GridLayout(size=self.size, pos=self.switchCoordinates(self.pos, 'percentage','pixels'))
 
             dividedText = self.text.split(self.separator)
@@ -67,7 +69,26 @@ class Text(Widget):
 
             return self.widget, textLength
 
-        def calculateGrid(self, textLength):
+        def applyPadding(self):
+
+            for i in range(len(self.padding)):
+                if self.padding[i] is None: self.padding[i] = 0
+
+            if len(self.padding) == 1:
+                self.padding = [self.padding[0], self.padding[0], self.padding[0], self.padding[0]]
+            elif len(self.padding) == 2:
+                self.padding = [self.padding[0], self.padding[1], self.padding[0], self.padding[1]]
+            elif len(self.padding) not in (1, 2, 4):
+                raise GridLayoutException
+
+            paddingInPercentage = self.switchCoordinates(self.padding, 'pixels', 'percentage')
+
+            for i in range(2):
+
+                self.pos[i] += paddingInPercentage[i]
+                self.size[i] -= (self.padding[i] + self.padding[i+2])
+
+        def getPossibleGrids(self, textLength):
             
             def checkValidity(self, textLength):
             
@@ -105,7 +126,8 @@ class Text(Widget):
                     return self.maxGrid[0] * self.maxGrid[1] >= textLength
 
             def sortFunction(arg):
-                return arg[1] - arg[0]
+                if arg[0] - arg[1] < 0: return -1000
+                else: return arg[1] - arg[0]
 
             if not checkValidity(self, textLength): raise GridLayoutException
 
@@ -124,24 +146,31 @@ class Text(Widget):
                     if (self.minGrid[0] is None or possibleGrid[0] >= self.minGrid[0]) and (self.minGrid[1] is None or possibleGrid[1] >= self.minGrid[1]):
                         rv.append(possibleGrid)
 
-            rv = sorted(rv, key=sortFunction)
+            rv = sorted(rv, key=sortFunction, reverse=True)
 
             return rv
 
-        def calculateSize(self, grid):
-            
-            for i in range(2):
-                if self.minSize[i] is not None:
-                    if grid[i] * self.minSize[i] > self.size[i]:
-                        return False
+        def tryGrid(self, grid):
 
             gridSize = [0, 0]
 
+            if len(self.spacing) == 1: self.spacing = (self.spacing[0], self.spacing[0])
+
             for i in range(2):
+
+                if self.spacing[i] is None: self.spacing[i] = 0
+
+                if self.minSize[i] is not None:
+                    if (self.spacing[i] * (grid[i] - 1)) + (grid[i] * self.minSize[i]) > self.size[i]:
+                        return False
+              
                 if self.maxSize[i] is None:
-                    gridSize[i] = self.size[i] / grid[i]
+                    gridSize[i] = (self.size[i] - self.spacing[i] * (grid[i] - 1)) / grid[i] 
                 else:
-                    gridSize[i] = min(self.size[i] / grid[i], self.maxSize[i])
+                    gridSize[i] = min((self.size[i] - self.spacing[i] * (grid[i] - 1)) / grid[i], self.maxSize[i])
+            
+                if (gridSize[i] * grid[i] + self.spacing[i] * (grid[i] - 1)) > self.size[i]: 
+                    return False
 
             return grid, gridSize 
 
@@ -153,8 +182,11 @@ class Text(Widget):
             currentCoordinates = [0, widgetGrid[1]-1]
 
             for i in range(textLength):
+                
+                posX = ((widgetSize[0] + self.spacing[0]) * currentCoordinates[0] + self.widget.pos[0])
+                posY = ((widgetSize[1] + self.spacing[1]) * currentCoordinates[1] + self.widget.pos[1])
 
-                self.widget.add_widget(Widget(engine=self.engine, size=(widgetSize[0], widgetSize[1]), pos=(widgetSize[0] * currentCoordinates[0] + self.widget.pos[0], widgetSize[1] * currentCoordinates[1] + self.widget.pos[1])), canvas='before')
+                self.widget.add_widget(Widget(engine=self.engine, size=(widgetSize[0], widgetSize[1]), pos=(posX, posY)), canvas='before')
 
                 currentCoordinates[0] += 1
                 if currentCoordinates[0] >= widgetGrid[0]: 
@@ -163,22 +195,29 @@ class Text(Widget):
 
             self.add_widget(self.widget)
 
+        applyPadding(self)
+
         self.widget, textLength = init(self)
-        possibleGrids = calculateGrid(self, textLength)
+
+        possibleGrids = getPossibleGrids(self, textLength)
         
         for grid in possibleGrids:
             try:
-                widgetGrid, widgetSize = calculateSize(self, grid)
+                widgetGrid, widgetSize = tryGrid(self, grid)
                 execute(self, widgetGrid, widgetSize, textLength)
                 return None
             except:
                 continue
+        
         raise GridLayoutException
 
     def putSymbol(self, symbol, widgetToPutInto):
         
         with widgetToPutInto.canvas.after:
-            exec(self.getCoordinate(symbol))
+            Color(1, 0, 0)
+            Line(points=[self.switchCoordinates((-1,-1,101,-1,101,101,-1,101,-1,-1), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos)])
+            Color(0, 0, 1)
+            exec(self.getInstruction(symbol))
             
     def show(self):
 

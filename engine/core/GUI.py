@@ -1,7 +1,7 @@
 from engine.threadClass import threadClass
 
-from gfx.screens.LoadingScreen import LoadingScreen as loadingScreen
-from gfx.screens.StartingScreen import StartingScreen as startingScreen
+from project.gfx.screens.LoadingScreen import LoadingScreen as loadingScreen
+from project.gfx.screens.StartingScreen import StartingScreen as startingScreen
 
 class GUIThread(threadClass):
     

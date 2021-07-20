@@ -35,7 +35,33 @@
 
     "№": "pass",
 
+    "¤": "pass",
+
+    "Ƀ": "pass",
+
     "$": "pass",
+
+    "€": "pass",
+
+    "£": "pass",
+
+    "₽": "pass",
+
+    "₴": "pass",
+
+    "₪": "pass",
+
+    "﷼": "pass",
+
+    "₺": "pass",
+
+    "₩": "pass",
+
+    "￥": "pass",
+
+    "₹": "pass",
+
+    "元": "pass",
 
     ";": "pass",
 
@@ -51,7 +77,7 @@
 
     "(": "pass",
 
-    ")": "pass",
+    ")": "Line(bezier=self.switchCoordinates((40,0,50,10,60,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
     "_": "Line(bezier=self.switchCoordinates((0,50,0,0,40,0), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((40,0,50,40,60,0), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)\nLine(bezier=self.switchCoordinates((60,0,100,0,100,50), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
@@ -139,7 +165,7 @@
 
     "Z": "pass",
 
-    "a": "pass",
+    "a": "Line(bezier=self.switchCoordinates((50,50,60,60,50,100), 'percentage', 'pixels', widgetToPutInto.size, widgetToPutInto.pos), **self.texture)",
 
     "b": "pass",
 

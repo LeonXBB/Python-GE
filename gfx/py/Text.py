@@ -1,3 +1,4 @@
+from time import perf_counter
 from kivy import graphics
 from engine.JSONFile import JSONFile
 from gfx.py.Widget import Widget
@@ -6,7 +7,7 @@ from kivy.uix.gridlayout import GridLayout, GridLayoutException
 
 from kivy.graphics import *
 
-from math import sqrt
+from math import sqrt, ceil
 
 class Text(Widget):
 
@@ -22,6 +23,8 @@ class Text(Widget):
         if not hasattr(self, "minSize"): self.minSize = [None, None]
         if not hasattr(self, "maxSize"): self.maxSize = [None, None]
         if not hasattr(self, "separator"): self.separator = ' '
+        if not hasattr(self, 'maxXYRatio'): self.maxXYRatio = 8 # TODO change from hard-coding to settings, probably?
+        if not hasattr(self, 'minXYRatio'): self.minXYRatio = 1
 
     def unpack(self):
 
@@ -56,127 +59,187 @@ class Text(Widget):
 
             self.widget = GridLayout(size=self.widgetSize, pos=self.switchCoordinates(self.widgetPos, 'percentage','pixels'))
 
+        def getTextLength(self):
+               
             dividedText = self.text.split(self.separator)
-
+                
             textLength = (len(dividedText) - 1) * len(self.separator)
             for i in range(len(dividedText)):
                 textLength += len(dividedText[i])
-
-            return self.widget, textLength
+                
+            return textLength
 
         def applyPadding(self):
 
-            for i in range(len(self.widgetPadding)):
-                if self.widgetPadding[i] is None: self.widgetPadding[i] = 0
+            def convertPadding(self):
+                for i in range(len(self.widgetPadding)):
+                    if self.widgetPadding[i] is None: self.widgetPadding[i] = 0
 
-            if len(self.widgetPadding) == 1:
-                self.widgetPadding = [self.widgetPadding[0], self.widgetPadding[0], self.widgetPadding[0], self.widgetPadding[0]]
-            elif len(self.widgetPadding) == 2:
-                self.widgetPadding = [self.widgetPadding[0], self.widgetPadding[1], self.widgetPadding[0], self.widgetPadding[1]]
-            elif len(self.widgetPadding) not in (1, 2, 4):
-                raise GridLayoutException
+            def expandPadding(self): 
+                if len(self.widgetPadding) == 1:
+                    self.widgetPadding = [self.widgetPadding[0], self.widgetPadding[0], self.widgetPadding[0], self.widgetPadding[0]]
+                elif len(self.widgetPadding) == 2:
+                    self.widgetPadding = [self.widgetPadding[0], self.widgetPadding[1], self.widgetPadding[0], self.widgetPadding[1]]
+                elif len(self.widgetPadding) not in (1, 2, 4):
+                    raise GridLayoutException
 
-            paddingInPercentage = self.switchCoordinates(self.widgetPadding, 'pixels', 'percentage')
+            def getPaddingInPercentage(self):
+                return self.switchCoordinates(self.widgetPadding, 'pixels', 'percentage')
 
-            for i in range(2):
+            def _applyPadding(self):
 
-                self.widgetPos[i] += paddingInPercentage[i]
-                self.widgetSize[i] -= (self.widgetPadding[i] + self.widgetPadding[i+2])
+                for i in range(2):
+                    
+                    self.widgetPos[i] += getPaddingInPercentage(self)[i]
+                    self.widgetSize[i] -= (self.widgetPadding[i] + self.widgetPadding[i+2])
+
+            convertPadding(self)
+            expandPadding(self)
+            _applyPadding(self)
 
         def getPossibleGrids(self, textLength):
             
-            def checkValidity(self, textLength):
-            
-                if None in self.maxGrid: 
-                    return True           
+            def checkPossibleGridExists(self, textLength):
+
+                if (None not in self.maxGrid) and ((self.maxGrid[0] * self.maxGrid[1]) < textLength): raise GridLayoutException
+                if (None not in self.minGrid) and ((self.minGrid[0] * self.minGrid[1]) > textLength): raise GridLayoutException
+
+            def checkGirdForLimits(self, grid):
+
+                for i in range(2):
+                    
+                    _min = (self.minGrid[i] if self.minGrid[i] is not None else 1)
+                    _max = (self.maxGrid[i] if self.maxGrid[i] is not None else grid[i])
+
+                    if not (_min <= grid[i] <= _max): return False 
+
+                return True
+
+            def checkGridForRatios(self, grid, textLength):
                 
-                else: 
-                    return self.maxGrid[0] * self.maxGrid[1] >= textLength
+                if self.minXYRatio is None: self.minXYRatio = 1
+                if self.maxXYRatio is None: self.maxXYRatio = textLength
+
+                return self.minXYRatio <= (grid[0] / grid[1]) <= self.maxXYRatio
+
+            def _getPossibleGrids(self, textLength):
+                
+                possibleGrids = []
+                for x in range(1, int(sqrt(textLength)+1)):
+                    if not (textLength % x):
+                        possibleGrids.append([x,textLength//x])
+                        possibleGrids.append([textLength//x, x])
+
+                return possibleGrids
+
+            def filterPossibleGrids(self, possibleGrids):
+                
+                rv = []
+
+                for grid in possibleGrids:
+                    if not checkGirdForLimits(self, grid):
+                        continue
+                    if not checkGridForRatios(self, grid, textLength):
+                        continue
+
+                    rv.append(grid)
+
+                return rv
 
             def sortFunction(arg):
                 return arg[0] / arg[1]
 
-            if not checkValidity(self, textLength): raise GridLayoutException
+            checkPossibleGridExists(self, textLength)
+            possibleGrids= _getPossibleGrids(self, textLength)
+            rv = filterPossibleGrids(self, possibleGrids)
 
-            if textLength % 2 != 0: textLength += 1
-
-            possibleGrids = []
-            for x in range(1, int(sqrt(textLength)+1)):
-                if not (textLength % x):
-                    possibleGrids.append([x,textLength//x])
-                    possibleGrids.append([textLength//x, x])
-
-            rv = []
-
-            for possibleGrid in possibleGrids:
-                if (self.maxGrid[0] is None or possibleGrid[0] <= self.maxGrid[0]) and (self.maxGrid[1] is None or possibleGrid[1] <= self.maxGrid[1]):
-                    if (self.minGrid[0] is None or possibleGrid[0] >= self.minGrid[0]) and (self.minGrid[1] is None or possibleGrid[1] >= self.minGrid[1]):
-                        rv.append(possibleGrid)
-
-            rv = sorted(rv, key=sortFunction, reverse=True)
-
-            return rv
+            return sorted(rv, key=sortFunction, reverse=True)
 
         def tryGrid(self, grid):
 
-            gridSize = [0, 0]
+            def getGridSize(self):
+                
+                rv = []
 
-            if len(self.widgetSpacing) == 1: self.widgetSpacing = (self.widgetSpacing[0], self.widgetSpacing[0])
+                for i in range(2):
+                    divValue = self.widgetSize[i] / grid[i]
+                    maxValue = (self.maxSize[i] if self.maxSize[i] is not None else divValue)
+                    rv.append(min(divValue, maxValue))
 
-            for i in range(2):
+                return rv
 
-                if self.widgetSpacing[i] is None: self.widgetSpacing[i] = 0
+            def convertSpacing(self):
+                
+                if len(self.widgetSpacing) == 1: self.widgetSpacing = (self.widgetSpacing[0], self.widgetSpacing[0])
+                for i in range(2):     
+                    if self.widgetSpacing[i] is None: self.widgetSpacing[i] = 0
 
-                if self.minSize[i] is not None:
-                    if (self.widgetSpacing[i] * (grid[i] - 1)) + (grid[i] * self.minSize[i]) > self.widgetSize[i]:
+            def checkWidgetForLimits(self, gridSize):
+
+                for i in range(2):
+                    
+                    _min = (self.minSize[i] if self.minSize[i] is not None else 1)
+                    #_max = (self.maxSize[i] if self.maxSize[i] is not None else gridSize[i])                       
+
+                    if _min > gridSize[i]: return False
+
+                return True
+
+            def checkAxisForLimitsWithSpacing(self, grid, gridSize):
+
+                posInPixels = self.switchCoordinates(self.widgetPos, 'percentage', 'pixels')
+
+                for i in range(2):            
+
+                    if (posInPixels[i] + (gridSize[i] * grid[i]) + (self.widgetSpacing[i] * (grid[i] - 1))) > self.widgetSize[i]: 
                         return False
-              
-                if self.maxSize[i] is None:
-                    gridSize[i] = (self.widgetSize[i] - self.widgetSpacing[i] * (grid[i] - 1)) / grid[i] 
-                else:
-                    gridSize[i] = min((self.widgetSize[i] - self.widgetSpacing[i] * (grid[i] - 1)) / grid[i], self.maxSize[i])
+
+                return True
+
+            gridSize = getGridSize(self)
+            convertSpacing(self)
+            if not checkWidgetForLimits(self, gridSize): return False
+            if not checkAxisForLimitsWithSpacing(self, grid, gridSize): return False
+
+            return grid[0], grid[1], gridSize
+
+        def execute(self, widgetSize, textLength):
             
-                if (gridSize[i] * grid[i] + self.widgetSpacing[i] * (grid[i] - 1)) > self.widgetSize[i]: 
-                    return False
-
-            return grid, gridSize 
-
-        def execute(self, widgetGrid, widgetSize, textLength):
-            
-            self.widget.cols = widgetGrid[0]
-            self.widget.rows = widgetGrid[1]
-
-            currentCoordinates = [0, widgetGrid[1]-1]
+            currentCoordinates = [0, ceil(len(self.text) / (self.widget.cols)) - 1]
 
             for i in range(textLength):
                 
                 posX = ((widgetSize[0] + self.widgetSpacing[0]) * currentCoordinates[0] + self.widget.pos[0])
                 posY = ((widgetSize[1] + self.widgetSpacing[1]) * currentCoordinates[1] + self.widget.pos[1])
 
-                self.widget.add_widget(Widget(engine=self.engine, size=(widgetSize[0], widgetSize[1]), pos=(posX, posY)), canvas='before')
+                self.widget.add_widget(Widget(engine=self.engine, size=widgetSize, pos=(posX, posY)), canvas='before')
 
                 currentCoordinates[0] += 1
-                if currentCoordinates[0] >= widgetGrid[0]: 
+                if currentCoordinates[0] >= self.widget.cols: 
                     currentCoordinates[1] -= 1
                     currentCoordinates[0] = 0
 
             self.add_widget(self.widget)
 
+        def mainLoop(self, textLength):
+            
+            for i in range(textLength, self.widgetSize[0] * self.widgetSize[1]):
+
+                possibleGrids = getPossibleGrids(self, i)
+                
+                for grid in possibleGrids:
+                    try:
+                        self.widget.cols, self.widget.rows, widgetSize = tryGrid(self, grid)
+                        execute(self, widgetSize, i)
+                        return None
+                    except:
+                        continue
+
+            raise GridLayoutException
+
         applyPadding(self)
-
-        self.widget, textLength = init(self)
-
-        possibleGrids = getPossibleGrids(self, textLength)
-        
-        for grid in possibleGrids:
-            try:
-                widgetGrid, widgetSize = tryGrid(self, grid)
-                execute(self, widgetGrid, widgetSize, textLength)
-                return None
-            except:
-                continue
-        
-        raise GridLayoutException
+        init(self)
+        mainLoop(self, getTextLength(self))
 
     def putSymbol(self, symbol, widgetToPutInto):
         

@@ -9,14 +9,28 @@ class Widget(kivyWidget):
         self.update(**kwargs)
 
         if not hasattr(self, 'engine'): raise EnvironmentError
-        if not hasattr(self, "widgetSize"): self.widgetSize = [self.engine.settings.windowWidth, self.engine.settings.windowHeight]
-        if not hasattr(self, "widgetPos"): self.widgetPos = [0, 0]
+
+        if not hasattr(self, "widgetSize"): self.widgetSize = [self.engine.settings.windowWidth, self.engine.settings.windowHeight, 1]
+        if not hasattr(self, "widgetPos"): self.widgetPos = [0, 0, 0]
         if not hasattr(self, "widgetPadding"): self.widgetPadding = [None, None, None, None]
         if not hasattr(self, "widgetSpacing"): self.widgetSpacing = [None, None]
         
+        if not hasattr(self, 'associatedSound'): self.associatedSound = None
+
+        if not hasattr(self, "physicalProperties"): self.physicalProperties = None # TODO Change
+
         if not hasattr(self, "switchCoordinates"): self.switchCoordinates = self.engine.GUIThread.switchCoordinates
 
     def update(self, **kwargs):
         
         for kwarg in kwargs:
             setattr(self, kwarg, kwargs.get(kwarg))
+
+    def move(self, direction):
+        pass
+
+    def addAssociatedSound(self, sound):
+        pass
+
+    def deleteAssociatedSound(self, sound):
+        pass

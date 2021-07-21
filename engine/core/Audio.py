@@ -12,7 +12,7 @@ class audioThread(threadClass):
 
         def getOrder():
 
-            for root, dirs, files in os.walk('audio'):
+            for root, dirs, files in os.walk('./project/audio'):
                 audioFilesNumber = len(files)
                     
             audioNumbersList = list(range(1, audioFilesNumber+1))
@@ -27,7 +27,7 @@ class audioThread(threadClass):
 
         def playAudio(index, volume):
             
-            audioFile = SoundLoader.load('audio/' + str(index) + '.wav')
+            audioFile = SoundLoader.load('./project/audio/' + str(index) + '.wav')
             audioFile.volume = volume
             audioFile.play()
             if audioFile.length > 0: time.sleep(audioFile.length)

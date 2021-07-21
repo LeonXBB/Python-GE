@@ -1,5 +1,3 @@
-from time import perf_counter
-from kivy import graphics
 from engine.JSONFile import JSONFile
 from gfx.py.Widget import Widget
 

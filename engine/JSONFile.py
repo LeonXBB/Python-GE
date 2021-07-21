@@ -19,7 +19,7 @@ class JSONFile:
             
     def get_value(self, parameter):
 
-        json_file = open(self.address, errors='ignore')
+        json_file = open(self.address, encoding='utf-8')
         json_data = json.load(json_file)
         json_file.close()
         
@@ -30,7 +30,7 @@ class JSONFile:
 
     def get_all_values(self):
         
-        json_file = open(self.address)
+        json_file = open(self.address, encoding='utf-8')
         json_data = json.load(json_file)
         json_file.close()
 

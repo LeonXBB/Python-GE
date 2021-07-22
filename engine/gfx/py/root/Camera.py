@@ -1,4 +1,4 @@
-from gfx.py.Widget import Widget
+from engine.gfx.py.root.Widget import Widget
 
 class Camera(Widget):
 
@@ -9,11 +9,15 @@ class Camera(Widget):
         if not hasattr(self, 'currentZoom'): self.currentZoom = 1
         if not hasattr(self, 'objectCentred'): self.objectCentred = None
         if not hasattr(self, 'objectFollowed'): self.objectFollowed = None
+        if not hasattr(self, 'frozen'): self.frozen = False
 
     def move(self, direction):
         super().move(direction)
 
     def changeZoom(self, newLevel):
+        pass
+
+    def freeze(self):
         pass
 
     def center(self, object=None, direction=None, distance=None):
@@ -26,6 +30,9 @@ class Camera(Widget):
         pass
 
     def unFollow(self):
+        pass
+
+    def unFreeze(self):
         pass
 
     def getCanvas(self):

@@ -1,9 +1,9 @@
 {
-    "appVersion": "0.1Alpha",
-    "appLanguage": "EN",
+    "engineVersion": "0.1 Alpha",
     "audioVolume": 0,
     "audioExcludedTracks": [3, 4, 5],
     "windowFullscreen": "True",
     "windowWidth": 1920,
-    "windowHeight" : 1280    
+    "windowHeight" : 1280,
+    "updateFrequency": 0.04
 }

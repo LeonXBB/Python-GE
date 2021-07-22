@@ -1,5 +1,5 @@
 from engine.JSONFile import JSONFile
-from gfx.py.Widget import Widget
+from engine.gfx.py.root.Widget import Widget
 
 from kivy.uix.gridlayout import GridLayout, GridLayoutException
 

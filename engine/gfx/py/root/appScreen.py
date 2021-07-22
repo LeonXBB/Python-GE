@@ -1,20 +1,28 @@
 from kivy.uix.screenmanager import Screen
 
+from engine.gfx.py.root.Scene import Scene
+
 class appScreen(Screen):
 
-    def __init__(self, engine, autoLaunch=False, **kwargs):
+    def __init__(self, **kwargs):
 
         super().__init__(**kwargs)
 
-        self.engine = engine
+        self.update(**kwargs)
 
-        if autoLaunch:
+        if not hasattr(self, 'engine'): raise EnvironmentError
+        
+        if not hasattr(self, 'autoLaunch'): self.autoLaunch = False
+        if not hasattr(self, 'scene'): self.scene = Scene()
 
+
+        if self.autoLaunch:
             self.load()
-            self.putText()
 
-    def load(self):
-        pass
+    def update(self, **kwargs):
+        
+        for kwarg in kwargs:
+            setattr(self, kwarg, kwargs.get(kwarg))
 
-    def putText(self):
+    def launch(self):
         pass

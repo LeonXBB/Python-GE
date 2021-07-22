@@ -1,8 +1,7 @@
+from engine.JSONFile import JSONFile
 from engine.threadClass import threadClass
 
 from pynput import keyboard
-
-import sys
 
 class controlsThread(threadClass):
     
@@ -10,26 +9,23 @@ class controlsThread(threadClass):
             
             self.threadLoopOverWrittenFlag = True
 
+            self.keysMap = JSONFile('keysMap')
+
             while not self.engine.controlsThread.threadStopFlag:
-            
-                global threads 
-                threads = [self.engine.GUIThread, self.engine.audioThread, self.engine.controlsThread, 
-                self.engine.timeThread, self.engine.internetThread]
 
                 def on_press(key):
                     pass
 
-                def on_release(key):
+                def on_release(key):                
+                    
+                    if 'KeyCode' in str(type(key)):
+                        givenKey = key.char
+                    else:
+                        givenKey = str(key)
 
-                    if key == keyboard.Key.esc:
-                        
-                        for thread in threads: 
-                            try:
-                                thread.threadStopFlag = True
-                            except:
-                                pass
-
-                        sys.exit()
+                    command = self.engine.appSettings.keysMap.get(givenKey)
+                    instruction = self.keysMap.get_value(command)
+                    if instruction is not None: exec(instruction)
 
                 with keyboard.Listener(on_press=on_press, on_release=on_release) as listener: 
                     listener.join()

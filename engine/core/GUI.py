@@ -1,7 +1,7 @@
 from engine.threadClass import threadClass
 
-from project.gfx.screens.LoadingScreen import LoadingScreen as loadingScreen
-from project.gfx.screens.StartingScreen import StartingScreen as startingScreen
+from app.gfx.screens.LoadingScreen import LoadingScreen as loadingScreen
+from app.gfx.screens.StartingScreen import StartingScreen as startingScreen
 
 class GUIThread(threadClass):
     
@@ -13,7 +13,7 @@ class GUIThread(threadClass):
         rv = []
         coords = []
 
-        if widgetSize is None: widgetSize = (self.engine.settings.windowWidth, self.engine.settings.windowHeight)
+        if widgetSize is None: widgetSize = (self.engine.engineSettings.windowWidth, self.engine.engineSettings.windowHeight)
         if widgetPos is None: widgetPos = (0,0)
 
         dx = widgetSize[0] / 100

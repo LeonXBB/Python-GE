@@ -1,0 +1,3 @@
+{
+    "exit": "import sys\nfor thread in self.engine.threads:\n\ttry:\n\t\tthread.threadStopFlag = True\n\texcept:\n\t\tpass\nself.engine.get_running_app().stop()\nsys.exit()"
+}

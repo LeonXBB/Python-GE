@@ -1,4 +1,4 @@
-from gfx.py.Widget import Widget
+from engine.gfx.py.root.Widget import Widget
 
 class Model(Widget):
 

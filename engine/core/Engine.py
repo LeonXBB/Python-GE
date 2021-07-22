@@ -1,8 +1,10 @@
+from os import path
 from ..Settings import Settings as Settings
 
 from engine.core.GUI import GUIThread as GUIThread
 from engine.core.Audio import audioThread as audioThread
 from engine.core.Controls import controlsThread as controlsThread
+from engine.core.Update import updateThread as updateThread
 
 from kivy.app import App
 
@@ -19,19 +21,21 @@ class Engine(App): #settings, clock, screenManager, threads
 
         self.screenManager = None
 
-        self.settings = Settings()
+        self.engineSettings = Settings('engine')
+        self.appSettings = Settings('app')      
         self.load_settings()
 
         self.clock = Clock
 
-        self.GUIThread = GUIThread(self)
+        #self.GUIThread = GUIThread(self)
         self.audioThread = audioThread(self)
         self.controlsThread = controlsThread(self)
+        self.updateThread = updateThread(self)
 
-        self.timeThread = threading.Timer(0.5, self.threadPass, args=(self,))
         self.internetThread = threading.Timer(0.5, self.threadPass, args=(self,))
 
-        self.threads = [self.GUIThread, self.audioThread, self.controlsThread, self.timeThread, self.internetThread]
+        #self.threads = [self.GUIThread, self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
+        self.threads = [self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
 
     def build(self, **kwargs):
 
@@ -54,7 +58,8 @@ class Engine(App): #settings, clock, screenManager, threads
         pass
 
     def load_settings(self):
-        self.settings.apply_values()
+        self.engineSettings.apply_values()
+        self.appSettings.apply_values()
 
     def time_tick(self):
         pass

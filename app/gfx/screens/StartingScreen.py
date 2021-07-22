@@ -1,8 +1,8 @@
-from gfx.py.appScreen import appScreen
+from engine.gfx.py.root.appScreen import appScreen
 
 from kivy.uix.scatterlayout import ScatterLayout
 
-from gfx.py.Text import Text
+from engine.gfx.py.gui.Text import Text
 
 class StartingScreen(appScreen):
 

@@ -1,22 +1,34 @@
-from timeit import default_timer as timer
-import time
-
 from engine.threadClass import threadClass
 
 class updateThread(threadClass):
 
-    #century, year, month, week, day, 
+    def addInstruction(self, task, before=False):
 
-    def addInstruction(self, instruction, index, before_after=None):
+        indexes = [int(self.tasks[i][0]) for i in range(len(self.tasks))]
+        task[0] = int(task[0])
 
-        while len(self.instructions) < index:
-            self.instructions.append([]) 
-            
-        self.instructions[index].append(str(instruction) + '\n')
+        closestLowerIndex = None
+        closestHigherIndex = None
+        startIndex = None
+        endIndex = None
 
-    def removeInstruction(self, instruction, index):
+        for i in range(len(indexes)):
+            if indexes[i] < task[0]: closestLowerIndex = i
+            if indexes[i] == task[0] and startIndex is None: startIndex = i
+            if indexes[i] == task[0]: endIndex = i
+            if indexes[i] > task[0] and closestHigherIndex is None: closestHigherIndex = i 
 
-        self.instructions[index].remove(str(instruction) + '\n')
+        if closestLowerIndex is None: closestLowerIndex = -1
+        if closestHigherIndex is None: closestHigherIndex = len(self.tasks)-1
+
+        if before: self.tasks.insert(startIndex if startIndex is not None else closestLowerIndex+1, [str(task[0]), task[1]])
+        else: self.tasks.insert(endIndex if endIndex is not None else closestHigherIndex+1, [str(task[0]), task[1]])
+ 
+    def removeTask(self, task):
+        self.tasks.remove(task)
+
+    def updateTaskOrder(self):
+        pass
 
     def getInstructions(self):
 
@@ -44,17 +56,7 @@ class updateThread(threadClass):
         #self.tasks = []
         self.tasks = [["0","print('Hello')"],["0","print(' again ')"],["1","print('there, ')"],["2","print('darkness')"],["3","print(', my old')"],["4","print('friend')"]]
 
+        self.addInstruction(["10", 'print("end")'], True)
+
         while not self.threadStopFlag:
-
             self.engine.clock.schedule_interval(self.execute, self.engine.engineSettings.updateFrequency)
-            '''timeStart = timer() 
-
-            for instruction in self.getInstructions():
-                exec(instruction)            
-
-            timeEnd = timer()
-
-            if self.engine.engineSettings.updateFrequency - (timeEnd - timeStart) > 0:
-                time.sleep(max(0, self.engine.engineSettings.updateFrequency - (timer() - timeStart)))
-
-            self.i += 1'''

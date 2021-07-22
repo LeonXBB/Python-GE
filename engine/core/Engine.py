@@ -8,7 +8,7 @@ from engine.core.Update import updateThread as updateThread
 
 from kivy.app import App
 
-from kivy.clock import Clock
+from kivy.clock import Clock, ClockBaseFreeInterruptAll
 
 from kivy.uix.screenmanager import ScreenManager, NoTransition
 
@@ -27,14 +27,14 @@ class Engine(App): #settings, clock, screenManager, threads
 
         self.clock = Clock
 
-        #self.GUIThread = GUIThread(self)
+        self.GUIThread = GUIThread(self)
         self.audioThread = audioThread(self)
         self.controlsThread = controlsThread(self)
         self.updateThread = updateThread(self)
 
         self.internetThread = threading.Timer(0.5, self.threadPass, args=(self,))
 
-        #self.threads = [self.GUIThread, self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
+        self.threads = [self.GUIThread, self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
         self.threads = [self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
 
     def build(self, **kwargs):

@@ -41,8 +41,9 @@ class Settings:
         if self.settingsType == 'engine':
             
             Config.set('kivy', 'exit_on_escape', '0')
+            Config.set('kivy', 'kivy_clock', 'free_all')
+            Config.set('graphics', 'show_cursor', 0)
             Config.set('graphics', 'fullscreen', self.windowFullscreen)
-            Config.set('graphics', 'resizable', False)
             Config.set('graphics', 'width', self.windowWidth)
             Config.set('graphics', 'height', self.windowHeight)
 

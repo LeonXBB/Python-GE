@@ -1,10 +1,13 @@
+from timeit import default_timer as timer
 import time
 
 from engine.threadClass import threadClass
 
 class updateThread(threadClass):
 
-    def addInstruction(self, instruction, index):
+    #century, year, month, week, day, 
+
+    def addInstruction(self, instruction, index, before_after=None):
 
         while len(self.instructions) < index:
             self.instructions.append([]) 
@@ -15,25 +18,43 @@ class updateThread(threadClass):
 
         self.instructions[index].remove(str(instruction) + '\n')
 
+    def getInstructions(self):
+
+        rv = []
+
+        while len(self.tasks) > 0 and eval(self.tasks[0][0]) == self.i:
+            rv.append(self.tasks[0][1])
+            self.tasks = self.tasks[1:]
+
+        return rv
+
+    def execute(self, dt):
+        
+        for instruction in self.getInstructions():
+            exec(instruction)
+
+        self.i += 1
+
     def loop(self, dt):
         
         self.threadLoopOverWrittenFlag = True
 
-        self.currentIndex = 0
+        self.i = 0
 
-        self.instructions = [[]]
+        #self.tasks = []
+        self.tasks = [["0","print('Hello')"],["0","print(' again ')"],["1","print('there, ')"],["2","print('darkness')"],["3","print(', my old')"],["4","print('friend')"]]
 
         while not self.threadStopFlag:
 
-            timeStart = time.time() 
+            self.engine.clock.schedule_interval(self.execute, self.engine.engineSettings.updateFrequency)
+            '''timeStart = timer() 
 
-            for instruction in self.instructions[self.currentIndex]:
+            for instruction in self.getInstructions():
                 exec(instruction)            
 
-            timeEnd = time.time()
+            timeEnd = timer()
 
-            if timeEnd - timeStart < self.engine.engineSettings.updateFrequency:
-                time.sleep(time.time() -timeStart - self.engine.engineSettings.updateFrequency)
+            if self.engine.engineSettings.updateFrequency - (timeEnd - timeStart) > 0:
+                time.sleep(max(0, self.engine.engineSettings.updateFrequency - (timer() - timeStart)))
 
-            self.currentIndex += 1
-         
+            self.i += 1'''

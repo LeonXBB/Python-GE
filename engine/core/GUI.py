@@ -66,3 +66,7 @@ class GUIThread(threadClass):
                 pass
 
         self.engine.clock.schedule_once(self.pushPastIntro, -1)
+
+        while True:
+            if not self.threadStopFlag:
+                pass

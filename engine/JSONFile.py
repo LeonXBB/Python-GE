@@ -17,24 +17,24 @@ class JSONFile:
             if self.address is None:
                 raise FileNotFoundError 
             
-    def get_value(self, parameter):
+    def getValue(self, parameter):
 
-        json_file = open(self.address, encoding='utf-8')
-        json_data = json.load(json_file)
-        json_file.close()
+        jsonFile = open(self.address, encoding='utf-8')
+        jsonData = json.load(jsonFile)
+        jsonFile.close()
         
-        return json_data.get(parameter)
+        return jsonData.get(parameter)
 
-    def set_value(self):
+    def setValue(self): #TODO write it
         pass
 
-    def get_all_values(self):
+    def getAllValues(self):
         
-        json_file = open(self.address, encoding='utf-8')
-        json_data = json.load(json_file)
-        json_file.close()
+        jsonFile = open(self.address, encoding='utf-8')
+        jsonData = json.load(jsonFile)
+        jsonFile.close()
 
-        return json_data
+        return jsonData
 
-    def set_all_values(self):
+    def setAllValues(self): #TODO write it
         pass

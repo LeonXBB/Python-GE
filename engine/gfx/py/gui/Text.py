@@ -32,7 +32,7 @@ class Text(Widget):
     def getTexture(self): 
             
             if type(self.texture) == str:
-                self.texture = JSONFile(self.texture).get_all_values()
+                self.texture = JSONFile(self.texture).getAllValues()
             
             elif type(self.texture) == dict:
                 pass
@@ -43,7 +43,7 @@ class Text(Widget):
     def getInstruction(self, symbol):
 
             if type(self.coordinatesAddress) == str:
-                rv = JSONFile(self.coordinatesAddress).get_value(symbol)
+                rv = JSONFile(self.coordinatesAddress).getValue(symbol)
             elif type(self.coordinatesAddress) == dict:
                 rv = self.coordinatesAddress.get(symbol)
             else:

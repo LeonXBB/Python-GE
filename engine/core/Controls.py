@@ -1,3 +1,4 @@
+from math import e
 from engine.JSONFile import JSONFile
 from engine.threadClass import threadClass
 
@@ -5,27 +6,30 @@ from pynput import keyboard
 
 class controlsThread(threadClass):
     
+    def onPress(self, key):
+        pass
+
+    def onRelease(self, key):
+        
+        if 'KeyCode' in str(type(key)):
+            givenKey = key.char
+        else:
+            givenKey = str(key)
+
+        command = self.mapKeysFunctions.get(givenKey)
+        instruction = self.mapFunctionInstructons.getValue(command)
+        try:
+            exec(instruction)
+        except:
+            pass
+
     def loop(self, dt):
             
             self.threadLoopOverWrittenFlag = True
 
-            self.keysMap = JSONFile('keysMap')
+            with keyboard.Listener(on_press=self.onPress, on_release=self.onRelease) as listener: 
+                listener.join()
 
-            while not self.engine.controlsThread.threadStopFlag:
-
-                def on_press(key):
+            while True:
+                if not self.engine.controlsThread.threadStopFlag:
                     pass
-
-                def on_release(key):                
-                    
-                    if 'KeyCode' in str(type(key)):
-                        givenKey = key.char
-                    else:
-                        givenKey = str(key)
-
-                    command = self.engine.appSettings.keysMap.get(givenKey)
-                    instruction = self.keysMap.get_value(command)
-                    if instruction is not None: exec(instruction)
-
-                with keyboard.Listener(on_press=on_press, on_release=on_release) as listener: 
-                    listener.join()

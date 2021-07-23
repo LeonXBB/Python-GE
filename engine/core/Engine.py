@@ -1,18 +1,17 @@
-from os import path
+from ..JSONFile import JSONFile as JSONFile
 from ..Settings import Settings as Settings
 
 from engine.core.GUI import GUIThread as GUIThread
 from engine.core.Audio import audioThread as audioThread
 from engine.core.Controls import controlsThread as controlsThread
 from engine.core.Update import updateThread as updateThread
+from engine.core.Internet import internetThread as internetThread
 
 from kivy.app import App
 
-from kivy.clock import Clock, ClockBaseFreeInterruptAll
+from kivy.clock import Clock
 
 from kivy.uix.screenmanager import ScreenManager, NoTransition
-
-import threading
 
 class Engine(App): #settings, clock, screenManager, threads
 
@@ -23,19 +22,17 @@ class Engine(App): #settings, clock, screenManager, threads
 
         self.engineSettings = Settings('engine')
         self.appSettings = Settings('app')      
-        self.load_settings()
+        self.loadSettings()
 
-        self.clock = Clock
+        self.clock = Clock       
 
         self.GUIThread = GUIThread(self)
-        self.audioThread = audioThread(self)
-        self.controlsThread = controlsThread(self)
-        self.updateThread = updateThread(self)
-
-        self.internetThread = threading.Timer(0.5, self.threadPass, args=(self,))
+        self.audioThread = audioThread(self, {"audios": [], "endTimeMark": 0, "address": self.engineSettings.audioDefaultAddress, "volume": self.engineSettings.audioVolume, "extension": self.engineSettings.audioDefaultExtension})
+        self.controlsThread = controlsThread(self, {"mapKeysFunctions": self.appSettings.mapKeysFunctions, "mapFunctionInstructions": JSONFile('keysMap')})
+        self.updateThread = updateThread(self, {"i":0, "tasks":self.getBootstrapInstructions(), "updateFrequency":self.engineSettings.updateFrequency})
+        self.internetThread = internetThread(self)
 
         self.threads = [self.GUIThread, self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
-        self.threads = [self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
 
     def build(self, **kwargs):
 
@@ -44,22 +41,22 @@ class Engine(App): #settings, clock, screenManager, threads
         self.screenManager = ScreenManager(transition=NoTransition())
         return self.screenManager
 
-    def threadPass(self, engine):
-        pass
-
     def start(self):
 
         for thread in self.threads:
             thread.start()
 
         self.run()
+ 
+    def getBootstrapInstructions(self):
+        
+        rv = []
 
-    def change_settings(self):
+        return rv
+
+    def changeSettings(self): #TODO write it
         pass
 
-    def load_settings(self):
-        self.engineSettings.apply_values()
-        self.appSettings.apply_values()
-
-    def time_tick(self):
-        pass
+    def loadSettings(self):
+        self.engineSettings.applyValues()
+        self.appSettings.applyValues()

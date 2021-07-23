@@ -6,11 +6,18 @@ class threadClass(threading.Timer):
         
         super().__init__(interval=0.5, function=self.loop, args=(self,))
         
+        self.update(**kwargs)
+
         self.engine = engine
         
         self.daemon = True
         self.threadStopFlag = False
         self.threadLoopOverWrittenFlag = False
+
+    def update(self, **kwargs):
+        
+        for kwarg in kwargs:
+            setattr(self, kwarg, kwargs.get(kwarg))
 
     def loop(self, dt):
 

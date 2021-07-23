@@ -1,11 +1,14 @@
+import random
 from engine.threadClass import threadClass
 
 class updateThread(threadClass):
 
-    def addInstruction(self, task, before=False):
+    def addTask(self, task, before=False):
 
         indexes = [int(self.tasks[i][0]) for i in range(len(self.tasks))]
         task[0] = int(task[0])
+
+        if task[0] < self.i: task[0] = self.i
 
         closestLowerIndex = None
         closestHigherIndex = None
@@ -27,8 +30,8 @@ class updateThread(threadClass):
     def removeTask(self, task):
         self.tasks.remove(task)
 
-    def updateTaskOrder(self):
-        pass
+    def updateTasksOrder(self): #TODO write it
+        pass 
 
     def getInstructions(self):
 
@@ -51,12 +54,6 @@ class updateThread(threadClass):
         
         self.threadLoopOverWrittenFlag = True
 
-        self.i = 0
-
-        #self.tasks = []
-        self.tasks = [["0","print('Hello')"],["0","print(' again ')"],["1","print('there, ')"],["2","print('darkness')"],["3","print(', my old')"],["4","print('friend')"]]
-
-        self.addInstruction(["10", 'print("end")'], True)
-
-        while not self.threadStopFlag:
-            self.engine.clock.schedule_interval(self.execute, self.engine.engineSettings.updateFrequency)
+        while True:
+            if not self.threadStopFlag:
+                self.engine.clock.schedule_interval(self.execute, self.updateFrequency)

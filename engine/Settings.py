@@ -12,40 +12,40 @@ class Settings:
 
         if self.settingsType == 'engine': 
             
-            if self.file is None: self.parameters = ['engineVersion', 'audioVolume', 'audioExcludedTracks', 'windowFullscreen', 'windowWidth', 'windowHeight', 'updateFrequency']
-            else: self.parameters = list(self.file.get_all_values().keys())
+            if self.file is None: self.parameters = ['engineVersion', 'engineExitOnEscape', 'engineClockType', 'audioVolume', 'audioDefaultAddress', 'audioDefaultExtansion', 'audioExcludedTracks', 'windowResizable', 'windowFullscreen', 'windowWidth', 'windowHeight', 'windowShowCursor' 'updateFrequency']
+            else: self.parameters = list(self.file.getAllValues().keys())
 
-            self.default_values = ['0.1 Alpha', 0, [3,4,5], True, 1920, 1280, 0.04]
+            self.defaultValues = ['0.1 Alpha', 0, 'free_all', 0, './app/audio', '.wav', [3,4,5], False, True, 1920, 1280, 0, 0.02]
 
         elif self.settingsType == 'app':
 
-            if self.file is None: self.parameters = ['appVersion', 'appLanguage', 'keysMap']
-            else: self.parameters = list(self.file.get_all_values().keys())
+            if self.file is None: self.parameters = ['appVersion', 'appLanguage', 'mapKeysFunctions']
+            else: self.parameters = list(self.file.getAllValues().keys())
 
-            self.default_values = ['0.1 Alpha', 'EN', {}]
+            self.defaultValues = ['0.1 Alpha', 'EN', {}]
 
-        self.load_values((self.file is None))
+        self.loadValues()
 
-    def load_values(self, default=False):
+    def loadValues(self):
         
-        if default:
-            for i in range(len(self.parameters)):
-                setattr(self, self.parameters[i], self.default_values[i])
+        for i in range(self.parameters):
+            
+            try:
+                setattr(self, self.parameters[i], self.file.getValue(self.parameters[i]))
+            except:
+                setattr(self, self.parameters[i], self.defaultValues[i])
 
-        else:
-            for parameter in self.parameters:
-                setattr(self, parameter, self.file.get_value(parameter))
-
-    def apply_values(self):
+    def applyValues(self):
 
         if self.settingsType == 'engine':
             
-            Config.set('kivy', 'exit_on_escape', '0')
-            Config.set('kivy', 'kivy_clock', 'free_all')
-            Config.set('graphics', 'show_cursor', 0)
+            Config.set('kivy', 'exit_on_escape', self.engineExitOnEscape)
+            Config.set('kivy', 'kivy_clock', self.engineClockType)
+            Config.set('graphics', 'show_cursor', self.windowShowCursor)
+            Config.set('graphics', 'resizable', self.windowResizable)
             Config.set('graphics', 'fullscreen', self.windowFullscreen)
             Config.set('graphics', 'width', self.windowWidth)
             Config.set('graphics', 'height', self.windowHeight)
 
-    def set_values(self):
+    def setValues(self): # TODO write it
         pass

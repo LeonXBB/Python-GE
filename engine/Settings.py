@@ -12,17 +12,17 @@ class Settings:
 
         if self.settingsType == 'engine': 
             
-            if self.file is None: self.parameters = ['engineVersion', 'engineExitOnEscape', 'engineClockType', 'audioVolume', 'audioDefaultAddress', 'audioDefaultExtension', 'audioExcludedTracks', 'windowResizable', 'windowFullscreen', 'windowWidth', 'windowHeight', 'windowShowCursor' 'updateFrequency']
+            if self.file is None: self.parameters = ['engineVersion', 'engineExitOnEscape', 'engineClockType', 'audioVolume', 'audioDefaultAddress', 'audioDefaultExtension', 'windowResizable', 'windowFullscreen', 'windowWidth', 'windowHeight', 'windowShowCursor' 'updateFrequency']
             else: self.parameters = list(self.file.getAllValues().keys())
 
-            self.defaultValues = ['0.1 Alpha', 0, 'free_all', 0, './app/audio', '.wav', [3,4,5], False, True, 1920, 1280, 0, 0.02]
+            self.defaultValues = ['0.1 Alpha', 0, 'default', 0, './app/audio/', '.wav', False, True, 1920, 1280, 0, 0.02]
 
         elif self.settingsType == 'app':
 
-            if self.file is None: self.parameters = ['appVersion', 'appLanguage', 'mapKeysFunctions']
+            if self.file is None: self.parameters = ['appVersion', 'appLanguage', 'audioExcludedTracks', 'mapKeysFunctions']
             else: self.parameters = list(self.file.getAllValues().keys())
 
-            self.defaultValues = ['0.1 Alpha', 'EN', {}]
+            self.defaultValues = ['0.1 Alpha', 'EN', [3,4,5], {}]
 
         self.loadValues()
 

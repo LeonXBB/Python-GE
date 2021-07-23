@@ -28,7 +28,7 @@ class Engine(App): #settings, clock, screenManager, threads
         self.clock = Clock       
 
         self.GUIThread = GUIThread(self)
-        self.audioThread = audioThread(self, audios=[], endTimeMark=0, address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension)
+        self.audioThread = audioThread(self, audios=[], lastSongEndI=0, address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks)
         self.controlsThread = controlsThread(self, mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
         self.updateThread = updateThread(self, i=0, tasks=[], updateFrequency=self.engineSettings.updateFrequency)
         self.internetThread = internetThread(self)
@@ -46,8 +46,6 @@ class Engine(App): #settings, clock, screenManager, threads
 
         for thread in self.threads:
             thread.start()
-
-        self.updateThread.threadStopFlag = False
 
         self.run()
  

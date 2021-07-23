@@ -21,7 +21,7 @@ class audioThread(threadClass):
             return audioNumbersList
 
         def deleteProhibitedTracks(self, nonClearedOrder):
-            return list(set(nonClearedOrder).symmetric_difference(set(self.excluded_tracks)))            
+            return list(set(nonClearedOrder).symmetric_difference(set(self.excludedTracks)))            
             
         def randomlyShuffle(self, clearedOrder, i):
             
@@ -49,16 +49,16 @@ class audioThread(threadClass):
 
         if not self.freezeAudioIndexesFlag: # TODO we can skip reuploading each file everytime by uploading them once (at the start / on the go) and reusing them. Look into it. (Gotta add more parameters to self.audios entry than just audiofile)
             self.freezeAudioIndexesFlag = True
-            self.audios.append(audioFile)
             index = len(self.audios)
+            self.audios.append(audioFile)
             self.freezeAudioIndexesFlag = False
 
-        playtime = self.engine.updateThread.i + 1 + delay + (0 if parallel else self.endTimeMark)
+        self.lastSongEndI = max(self.lastSongEndI, self.engine.updateThread.i + self.engine.updateThread.to('i', self.audios[index].length))
         instruction = 'self.engine.audioThread.audios[' + str(index) + '].play()'
 
-        self.engine.updateThread.addTask([playtime,instruction])
+        print(self.lastSongEndI)
 
-        self.endTimeMark = max(self.endTimeMark, playtime + self.audios[index].length)
+        self.engine.updateThread.addTask([(0 if parallel else self.lastSongEndI),instruction])
 
     def loop(self, dt):
        
@@ -76,3 +76,5 @@ class audioThread(threadClass):
                    
                     for index in tracksOrder:
                         self.playAudio(str(index))
+
+                    self.playAllTracksFlag[0] = False

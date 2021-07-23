@@ -38,19 +38,20 @@ class GUIThread(threadClass):
 
         return rv
 
-    def pushPastIntro(self, dt):
+    def pushPastIntro(self):
 
-        sS = startingScreen(self.engine, True)
+        '''sS = startingScreen(self.engine, True)
         self.engine.screenManager.add_widget(sS)
-        self.engine.screenManager.current = 'Starting Screen'
+        self.engine.screenManager.current = 'Starting Screen'''
+        pass
 
     def showIntro(self):
 
-        lS = loadingScreen(self.engine, True)
+        '''lS = loadingScreen(self.engine, True)
         self.engine.screenManager.add_widget(lS)
         self.engine.screenManager.current = 'Loading Screen'
         import time 
-        time.sleep(2.5)
+        time.sleep(2.5)'''
         self.engine.updateThread.addTask("self.engine.controlsThread.freezeKeyboardFlag = False")
         self.engine.updateThread.addTask("self.engine.GUIThread.pushPastIntro()")
         self.engine.updateThread.addTask("self.engine.audioThread.playAllTracksFlag = [True, True]")
@@ -58,16 +59,15 @@ class GUIThread(threadClass):
     def loop(self, dt):
         
         self.threadLoopOverWrittenFlag = True
-
         self.screenManagerPassedFlag = False 
+
+        while not self.screenManagerPassedFlag:
+            try:
+                self.showIntro()
+                self.screenManagerPassedFlag = True
+            except:
+                pass
 
         while True:
             if not self.threadStopFlag:
-               
-                while not self.screenManagerPassedFlag:
-                    
-                    try:
-                        self.showIntro()
-                        self.screenManagerPassedFlag = True
-                    except:
-                        pass
+                pass

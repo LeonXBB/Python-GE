@@ -17,7 +17,7 @@ class controlsThread(threadClass):
             givenKey = str(key)
 
         command = self.mapKeysFunctions.get(givenKey)
-        instruction = self.mapFunctionInstructons.getValue(command)
+        instruction = self.mapFunctionInstructions.getValue(command)
 
         if not self.freezeKeyboardFlag:
 

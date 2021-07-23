@@ -1,14 +1,21 @@
-import random
+import math
 from engine.threadClass import threadClass
 
 class updateThread(threadClass):
+
+    def to(self, to, value):
+
+        if to == 'i':
+            return math.ceil(value / (1000/self.updateFrequency) )
+        elif to == 'seconds':
+            return value * (1000/self.updateFrequency)
 
     def addTask(self, task, before=False):
 
         self.freezeExecution = True
         
-        if type(task) is not list or len(task) < 2:
-            tast = [self.i, task]
+        if type(task) == str or len(task) < 2:
+            task = [self.i, task]
 
         indexes = [int(self.tasks[i][0]) for i in range(len(self.tasks))]
         task[0] = int(task[0])
@@ -55,6 +62,7 @@ class updateThread(threadClass):
         if not self.freezeExecution:
 
             for instruction in self.getInstructions():
+                print(instruction)
                 exec(instruction)
 
             self.i += 1
@@ -67,4 +75,4 @@ class updateThread(threadClass):
 
         while True:
             if not self.threadStopFlag:
-                self.engine.clock.schedule_interval(self.execute, self.updateFrequency)
+                self.engine.clock.schedule_interval(self.execute, 1000/self.updateFrequency)

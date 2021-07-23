@@ -1,15 +1,14 @@
 {
     "engineVersion": "0.1 Alpha",
     "engineExitOnEscape": 0,
-    "engineClockType": "free_all",
+    "engineClockType": "default",
     "audioVolume": 1,
-    "audioDefaultAddress": "./app/audio",
+    "audioDefaultAddress": "./app/audio/",
     "audioDefaultExtension": ".wav",
-    "audioExcludedTracks": [3, 4, 5],
     "windowResizable": 0,
-    "windowFullscreen": 1,
-    "windowWidth": 1920,
-    "windowHeight" : 1280,
+    "windowFullscreen": 0,
+    "windowWidth": 500,
+    "windowHeight" : 500,
     "windowShowCursor": 0,
-    "updateFrequency": 0.02
+    "updateFrequency": 20
 }

@@ -16,6 +16,7 @@ from kivy.uix.screenmanager import ScreenManager, NoTransition
 class Engine(App): #settings, clock, screenManager, threads
 
     def __init__(self, **kwargs):
+        
         super().__init__(**kwargs)
 
         self.screenManager = None
@@ -27,9 +28,9 @@ class Engine(App): #settings, clock, screenManager, threads
         self.clock = Clock       
 
         self.GUIThread = GUIThread(self)
-        self.audioThread = audioThread(self, {"audios": [], "endTimeMark": 0, "address": self.engineSettings.audioDefaultAddress, "volume": self.engineSettings.audioVolume, "extension": self.engineSettings.audioDefaultExtension})
-        self.controlsThread = controlsThread(self, {"mapKeysFunctions": self.appSettings.mapKeysFunctions, "mapFunctionInstructions": JSONFile('keysMap')})
-        self.updateThread = updateThread(self, {"i":0, "tasks":self.getBootstrapInstructions(), "updateFrequency":self.engineSettings.updateFrequency})
+        self.audioThread = audioThread(self, audios=[], endTimeMark=0, address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension)
+        self.controlsThread = controlsThread(self, mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
+        self.updateThread = updateThread(self, i=0, tasks=[], updateFrequency=self.engineSettings.updateFrequency)
         self.internetThread = internetThread(self)
 
         self.threads = [self.GUIThread, self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
@@ -46,14 +47,10 @@ class Engine(App): #settings, clock, screenManager, threads
         for thread in self.threads:
             thread.start()
 
+        self.updateThread.threadStopFlag = False
+
         self.run()
  
-    def getBootstrapInstructions(self):
-        
-        rv = []
-
-        return rv
-
     def changeSettings(self): #TODO write it
         pass
 

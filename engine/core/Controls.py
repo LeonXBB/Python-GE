@@ -10,7 +10,7 @@ class controlsThread(threadClass):
         pass
 
     def onRelease(self, key):
-        
+
         if 'KeyCode' in str(type(key)):
             givenKey = key.char
         else:
@@ -18,14 +18,19 @@ class controlsThread(threadClass):
 
         command = self.mapKeysFunctions.get(givenKey)
         instruction = self.mapFunctionInstructons.getValue(command)
-        try:
-            exec(instruction)
-        except:
-            pass
+
+        if not self.freezeKeyboardFlag:
+
+            try:
+                exec(instruction)
+            except:
+                pass
 
     def loop(self, dt):
             
             self.threadLoopOverWrittenFlag = True
+
+            self.freezeKeyboardFlag = True
 
             with keyboard.Listener(on_press=self.onPress, on_release=self.onRelease) as listener: 
                 listener.join()

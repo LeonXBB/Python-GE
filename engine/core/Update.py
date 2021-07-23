@@ -5,6 +5,11 @@ class updateThread(threadClass):
 
     def addTask(self, task, before=False):
 
+        self.freezeExecution = True
+        
+        if type(task) is not list or len(task) < 2:
+            tast = [self.i, task]
+
         indexes = [int(self.tasks[i][0]) for i in range(len(self.tasks))]
         task[0] = int(task[0])
 
@@ -27,6 +32,8 @@ class updateThread(threadClass):
         if before: self.tasks.insert(startIndex if startIndex is not None else closestLowerIndex+1, [str(task[0]), task[1]])
         else: self.tasks.insert(endIndex if endIndex is not None else closestHigherIndex+1, [str(task[0]), task[1]])
  
+        self.freezeExecution = False
+
     def removeTask(self, task):
         self.tasks.remove(task)
 
@@ -45,14 +52,18 @@ class updateThread(threadClass):
 
     def execute(self, dt):
         
-        for instruction in self.getInstructions():
-            exec(instruction)
+        if not self.freezeExecution:
 
-        self.i += 1
+            for instruction in self.getInstructions():
+                exec(instruction)
+
+            self.i += 1
 
     def loop(self, dt):
         
         self.threadLoopOverWrittenFlag = True
+
+        self.freezeExecution = False
 
         while True:
             if not self.threadStopFlag:

@@ -51,6 +51,9 @@ class GUIThread(threadClass):
         self.engine.screenManager.current = 'Loading Screen'
         import time 
         time.sleep(2.5)
+        self.engine.updateThread.addTask("self.engine.controlsThread.freezeKeyboardFlag = False")
+        self.engine.updateThread.addTask("self.engine.GUIThread.pushPastIntro()")
+        self.engine.updateThread.addTask("self.engine.audioThread.playAllTracksFlag = [True, True]")
 
     def loop(self, dt):
         
@@ -58,15 +61,13 @@ class GUIThread(threadClass):
 
         self.screenManagerPassedFlag = False 
 
-        while not self.screenManagerPassedFlag:
-            try:
-                self.showIntro()
-                self.screenManagerPassedFlag = True
-            except:
-                pass
-
-        self.engine.clock.schedule_once(self.pushPastIntro, -1)
-
         while True:
             if not self.threadStopFlag:
-                pass
+               
+                while not self.screenManagerPassedFlag:
+                    
+                    try:
+                        self.showIntro()
+                        self.screenManagerPassedFlag = True
+                    except:
+                        pass

@@ -12,7 +12,7 @@ class Settings:
 
         if self.settingsType == 'engine': 
             
-            if self.file is None: self.parameters = ['engineVersion', 'engineExitOnEscape', 'engineClockType', 'audioVolume', 'audioDefaultAddress', 'audioDefaultExtansion', 'audioExcludedTracks', 'windowResizable', 'windowFullscreen', 'windowWidth', 'windowHeight', 'windowShowCursor' 'updateFrequency']
+            if self.file is None: self.parameters = ['engineVersion', 'engineExitOnEscape', 'engineClockType', 'audioVolume', 'audioDefaultAddress', 'audioDefaultExtension', 'audioExcludedTracks', 'windowResizable', 'windowFullscreen', 'windowWidth', 'windowHeight', 'windowShowCursor' 'updateFrequency']
             else: self.parameters = list(self.file.getAllValues().keys())
 
             self.defaultValues = ['0.1 Alpha', 0, 'free_all', 0, './app/audio', '.wav', [3,4,5], False, True, 1920, 1280, 0, 0.02]
@@ -28,7 +28,7 @@ class Settings:
 
     def loadValues(self):
         
-        for i in range(self.parameters):
+        for i in range(len(self.parameters)):
             
             try:
                 setattr(self, self.parameters[i], self.file.getValue(self.parameters[i]))

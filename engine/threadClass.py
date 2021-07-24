@@ -4,7 +4,7 @@ class threadClass(threading.Timer):
 
     def __init__(self, engine, **kwargs):
         
-        super().__init__(interval=0.5, function=self.loop, args=(self,))
+        super().__init__(interval=0.1, function=self.loop, args=(self,))
         
         self.update(**kwargs)
 

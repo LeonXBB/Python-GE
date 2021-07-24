@@ -5,10 +5,11 @@
     "audioVolume": 1,
     "audioDefaultAddress": "./app/audio/",
     "audioDefaultExtension": ".wav",
+    "audioAppendOn": "start",
     "windowResizable": 0,
     "windowFullscreen": 0,
     "windowWidth": 500,
     "windowHeight" : 500,
     "windowShowCursor": 0,
-    "updateFrequency": 20
+    "updateFrequency": 1
 }

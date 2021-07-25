@@ -1,4 +1,4 @@
-from engine.core.Engine import Engine as Engine
+from engine.Engine import Engine as Engine
 
 if __name__ == '__main__':
     appEngine = Engine()

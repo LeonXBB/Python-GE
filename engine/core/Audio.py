@@ -15,7 +15,6 @@ class playThread(threadClass):
         self.freezeAudioInsertFlag = False
 
         self.mainThread = mainThread
-        self.selfIndex = len(self.mainThread.threads)
         
         self.currentEndingIndex = self.engine.updateEngine.i
         self.filenamesToPlayQueue = []
@@ -25,8 +24,8 @@ class playThread(threadClass):
         self.audioObject = self.getAudioObject()
 
         while True:
-            if not self.playThreadStopFlag:
-                self.play()
+            if not self.threadStopFlag:
+                pass
 
     def copyFromMainThread(self):
         
@@ -50,11 +49,10 @@ class playThread(threadClass):
                 self.freezeAudioInsertFlag = True
 
                 self.filenamesToPlayQueue.append(audio)
-                if self.engine.engineSettings.audioAppendOn == 'start': self.addTask(audio)
                 
                 self.freezeAudioInsertFlag = False
 
-    def getTaskTime(self, addressString):
+    def getTime(self, addressString):
         
         if self.currentEndingIndex < self.engine.updateThread.i: self.currentEndingIndex = self.engine.updateThread.i
         
@@ -68,11 +66,11 @@ class playThread(threadClass):
 
     def addTask(self, filename):
         
-        time = self.getTaskTime((self.address if self.address not in filename else "") + filename + (self.extension if self.extension not in filename else ""))
+        time = self.getTime((self.address if self.address not in filename else "") + filename + (self.extension if self.extension not in filename else ""))
         instruction = 'self.engine.audioThread.threads[' + self.selfIndex +'].playThreadStopFlag = False'
-        group = 'Audio, thread ' + str(self.selfIndex)
+        group = self.threadName
 
-        self.engine.updateThread.addTask([time,instruction,group])
+        self.engine.updateThread.addTask({"time": time,"task": instruction, "group": group})
 
     def play(self):
 
@@ -95,14 +93,29 @@ class playThread(threadClass):
                 time.sleep(self.audioObject.length)
                 self.addTask(self.filenamesToPlayQueue[1])
 
-    def pause(self):
-        pass #TODO implement
+    def _start(self):
 
-    def clear(self):
-        pass #TODO implement
+        super()._start()
 
-    def stop(self):
-        pass
+        for i in range(1 if self.engine.engineSettings.audioAppendOn == 'end' else len(self.filenamesToPlayQueue)):
+            self.addTask(self.filenamesToPlayQueue[i])
+
+    def _pause(self):
+
+        super()._pause()
+        self.audioObject.pause()
+
+    def _resume(self):
+        
+        super()._resume()
+        self.audioObject.play()
+
+    def _stop(self):
+        
+        super()._stop()
+        
+        self.filenamesToPlayQueue.clear()
+        self.currentEndingIndex = self.engine.updateEngine.i
 
 class audioThread(threadClass):
 
@@ -112,7 +125,7 @@ class audioThread(threadClass):
             threadsNumber = len(self.threads)
 
         while len(self.threads) <= threadsNumber:
-            newPlayThread = playThread(self.engine)
+            newPlayThread = playThread(self.engine, threadName='Audio Thread ' + str(len(self.threads)))
             newPlayThread.start()
             self.threads.append(newPlayThread)
 
@@ -157,22 +170,21 @@ class audioThread(threadClass):
         self.playAllTracksFlag = [False, False]
         self.freezeAudioIndexesInThreadFlag = [False]
 
-        self.tracksOrder = None
-
         while True:
             if not self.threadStopFlag:
 
                 if self.playAllTracksFlag[0]:
                     
                     if (self.tracksOrder is None) or ((self.tracksOrder is not None) and (self.engine.appSettings.audioIfBeingPlayedTrackOrderRandomized == 'cycle')): 
-                        '''if self.engine.appSettings.audioAllowTrackRepeatAtCycleEndStart and self.tracksOrder is not None:
-                            lastTrack = self.tracksOrder'''
+                        
+                        if not self.engine.appSettings.audioAllowTrackRepeatAtCycleEndStart and self.tracksOrder is not None: lastTrack = self.tracksOrder[-1] 
                         self.tracksOrder = self.getTracksOrder(self.playAllTracksFlag[1])
+                        while len(self.tracksOrder) > 1 and self.tracksOrder[0] == lastTrack:
+                            self.tracksOrder = self.getTracksOrder(self.playAllTracksFlag[1])
 
-                    self.addThread_s_()
+                    self.addThread_s_(0)
                     self.threads[0].insertAudio_s_IntoQueue(self.tracksOrder)
-                    for index in self.tracksOrder:
-                        self.playAudio(str(index))
+                    self.engine.updateThread.addTask({"task": 'self.engine.audioThread.threads[0]._start()', "group": 'Audio Thread 0'})
 
-                    while self.engine.updateThread.i < self.threadsEndingI[0]: 
-                        pass # TODO add check if the 1st audio of the new cycle is the same as the last of the previous one. Also, implement cancelation "on the go" (probably by adding a group to each instruction?)
+                    while self.engine.updateThread.i < self.threads[0].currentEndingIndex: 
+                        pass 

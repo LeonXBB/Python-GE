@@ -27,11 +27,11 @@ class Engine(App): #settings, clock, screenManager, threads
 
         self.clock = Clock       
 
-        self.GUIThread = GUIThread(self)
-        self.audioThread = audioThread(self, threads=[[]], threadsEndingI=[0], address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks)
-        self.controlsThread = controlsThread(self, mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
-        self.updateThread = updateThread(self, i=0, tasks=[], updateFrequency=self.engineSettings.updateFrequency)
-        self.internetThread = internetThread(self)
+        self.GUIThread = GUIThread(self, threadName='GUI')
+        self.audioThread = audioThread(self, threadName='Audio', threads=[], tracksOrder=None, address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks)
+        self.controlsThread = controlsThread(self, threadName='Controls', mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
+        self.updateThread = updateThread(self, threadName='Update', i=0, tasks=[], pausedGroups=[], updateFrequency=self.engineSettings.updateFrequency)
+        self.internetThread = internetThread(self, threadName='Internet')
 
         self.threads = [self.GUIThread, self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
 

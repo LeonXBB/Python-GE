@@ -1,6 +1,19 @@
 import math
 from engine.threadClass import threadClass
 
+class Task:
+
+    def __init__(self, mainThread, frame, instruction, group='') -> None:
+        
+        self.mainThread = mainThread
+
+        self.frame = frame
+        self.instruction = instruction
+        self.group = group
+
+    def execute(self):
+        exec(self.instruction)
+
 class updateThread(threadClass):
 
     def to(self, to, value):
@@ -10,17 +23,12 @@ class updateThread(threadClass):
         elif to == 'seconds':
             return value * self.updateFrequency
 
-    def addTask(self, task, before=False):
-
-        self.freezeExecution = True
+    def getInsertIndex(self, taskData, before=False):
         
-        if type(task) == str or len(task) < 2:
-            task = [self.i, task]
+        indexes = [int(self.tasks[i].frame) for i in range(len(self.tasks))]
+        taskData[0] = int(taskData[0])
 
-        indexes = [int(self.tasks[i][0]) for i in range(len(self.tasks))]
-        task[0] = int(task[0])
-
-        if task[0] < self.i: task[0] = self.i
+        if taskData[0] < self.i: taskData[0] = self.i
 
         closestLowerIndex = None
         closestHigherIndex = None
@@ -28,16 +36,29 @@ class updateThread(threadClass):
         endIndex = None
 
         for i in range(len(indexes)):
-            if indexes[i] < task[0]: closestLowerIndex = i
-            if indexes[i] == task[0] and startIndex is None: startIndex = i
-            if indexes[i] == task[0]: endIndex = i
-            if indexes[i] > task[0] and closestHigherIndex is None: closestHigherIndex = i 
+            if indexes[i] < taskData[0]: closestLowerIndex = i
+            if indexes[i] == taskData[0] and startIndex is None: startIndex = i
+            if indexes[i] == taskData[0]: endIndex = i
+            if indexes[i] > taskData[0] and closestHigherIndex is None: closestHigherIndex = i 
 
         if closestLowerIndex is None: closestLowerIndex = -1
         if closestHigherIndex is None: closestHigherIndex = len(self.tasks)-1
 
-        if before: self.tasks.insert(startIndex if startIndex is not None else closestLowerIndex+1, [str(task[0]), task[1]])
-        else: self.tasks.insert(endIndex if endIndex is not None else closestHigherIndex+1, [str(task[0]), task[1]])
+        if before: rv = (startIndex if startIndex is not None else closestLowerIndex+1)
+        else: rv = (endIndex if endIndex is not None else closestHigherIndex+1)
+
+        return rv
+
+    def addTask(self, task, before=False):
+
+        self.freezeExecution = True
+        
+        task = [task.get('frame'), task.get('task'), task.get('group')]
+
+        if task[0] is None:
+            task.insert("0", task)
+
+        self.tasks.insert(self.getInsertIndex(task, before), Task(self, *task))
  
         self.freezeExecution = False
 
@@ -53,7 +74,10 @@ class updateThread(threadClass):
         #TODO add more control, i.e ability to mix multiple "by", and add subparameters to specify how "value" should be treated with respect to "by". For example, if "by" == 'instruction", currently we will delete all instruction that are equal to "value". But what if they were added by for loop with a running index. We could set optional future parameter "equality" to strict / startsWith / endsWith etc. Optionally, we could leave it as low-level function and built some interface(s) on it.
         '''
         
-        for task in self.tasks
+        for task in self.tasks:
+            
+            if getattr(task, by) == value:
+                self.tasks.remove(task)
 
     def updateTasksOrder(self): #TODO write it
         
@@ -63,26 +87,42 @@ class updateThread(threadClass):
 
         pass 
 
-    def getInstructions(self):
+    def getTasks(self):
 
         rv = []
 
-        while len(self.tasks) > 0 and eval(self.tasks[0][0]) == self.i:
-            rv.append(self.tasks[0][1])
+        while len(self.tasks) > 0 and eval(self.tasks[0].frame) == self.i:
+            rv.append(self.tasks[0])
             self.tasks = self.tasks[1:]
 
         return rv
 
-    def execute(self, dt): #TODO add threading if there are multiple instructions
+    def pauseGroups(self):
+
+        for task in self.tasks:
+            for pausedGroup in self.pausedGroups:
+                if task.group in pausedGroup:
+
+                    if '0+' in task.frame:
+                        task.frame = task.frame.split('+', maxSplit=2)
+                        task.frame = '0+' + str(int(task.frame[1]) + 1) + '+' + task.frame[2]
+                    
+                    else:
+                        task.frame = '0+1+' + task.frame
+                
+    def execute(self, dt): #TODO add parallel processing to both receiving tasks and executing them
         
         while True:
             
             if not self.freezeExecution:
 
-                for instruction in self.getInstructions():
-                    exec(instruction)
+                self.pauseGroups()
 
-            self.i += 1
+                for task in self.getTasks():
+                    task.execute()
+                    
+                self.i += 1
+
             return True
 
     def loop(self, dt):

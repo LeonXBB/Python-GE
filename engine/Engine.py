@@ -1,5 +1,5 @@
-from ..JSONFile import JSONFile as JSONFile
-from ..Settings import Settings as Settings
+from engine.JSONFile import JSONFile as JSONFile
+from engine.Settings import Settings as Settings
 
 from engine.core.GUI import GUIThread as GUIThread
 from engine.core.Audio import audioThread as audioThread
@@ -28,7 +28,7 @@ class Engine(App): #settings, clock, screenManager, threads
         self.clock = Clock       
 
         self.GUIThread = GUIThread(self, threadName='GUI')
-        self.audioThread = audioThread(self, threadName='Audio', threads=[], tracksOrder=None, address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks)
+        self.audioThread = audioThread(self, threadName='Audio', threads=[], tracksOrder=None, address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks, delay=0)
         self.controlsThread = controlsThread(self, threadName='Controls', mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
         self.updateThread = updateThread(self, threadName='Update', i=0, tasks=[], pausedGroups=[], updateFrequency=self.engineSettings.updateFrequency)
         self.internetThread = internetThread(self, threadName='Internet')

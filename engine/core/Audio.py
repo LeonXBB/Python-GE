@@ -8,15 +8,13 @@ import time
 
 class playThread(threadClass):
     
-    def loop(self, mainThread, **kwargs) -> None:
+    def loop(self, dt):
 
         self.threadLoopOverWrittenFlag = True
         self.playThreadStopFlag = True
         self.freezeAudioInsertFlag = False
 
-        self.mainThread = mainThread
-        
-        self.currentEndingIndex = self.engine.updateEngine.i
+        self.currentEndingIndex = self.engine.updateThread.i
         self.filenamesToPlayQueue = []
 
         self.copyFromMainThread()
@@ -125,7 +123,7 @@ class audioThread(threadClass):
             threadsNumber = len(self.threads)
 
         while len(self.threads) <= threadsNumber:
-            newPlayThread = playThread(self.engine, threadName='Audio Thread ' + str(len(self.threads)))
+            newPlayThread = playThread(self.engine, mainThread=self, threadName='Audio Thread ' + str(len(self.threads)))
             newPlayThread.start()
             self.threads.append(newPlayThread)
 
@@ -168,7 +166,6 @@ class audioThread(threadClass):
         self.threadLoopOverWrittenFlag = True
 
         self.playAllTracksFlag = [False, False]
-        self.freezeAudioIndexesInThreadFlag = [False]
 
         while True:
             if not self.threadStopFlag:
@@ -177,13 +174,16 @@ class audioThread(threadClass):
                     
                     if (self.tracksOrder is None) or ((self.tracksOrder is not None) and (self.engine.appSettings.audioIfBeingPlayedTrackOrderRandomized == 'cycle')): 
                         
+                        lastTrack = None
+
                         if not self.engine.appSettings.audioAllowTrackRepeatAtCycleEndStart and self.tracksOrder is not None: lastTrack = self.tracksOrder[-1] 
                         self.tracksOrder = self.getTracksOrder(self.playAllTracksFlag[1])
-                        while len(self.tracksOrder) > 1 and self.tracksOrder[0] == lastTrack:
+                        while len(self.tracksOrder) > 1 and lastTrack is not None and self.tracksOrder[0] == lastTrack:
                             self.tracksOrder = self.getTracksOrder(self.playAllTracksFlag[1])
 
                     self.addThread_s_(0)
                     self.threads[0].insertAudio_s_IntoQueue(self.tracksOrder)
+                    print('here')
                     self.engine.updateThread.addTask({"task": 'self.engine.audioThread.threads[0]._start()', "group": 'Audio Thread 0'})
 
                     while self.engine.updateThread.i < self.threads[0].currentEndingIndex: 

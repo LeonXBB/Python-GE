@@ -6,6 +6,7 @@ class Task:
     def __init__(self, mainThread, frame, instruction, group='') -> None:
         
         self.mainThread = mainThread
+        self.engine = self.mainThread.engine
 
         self.frame = frame
         self.instruction = instruction
@@ -54,11 +55,10 @@ class updateThread(threadClass):
         self.freezeExecution = True
         
         task = [task.get('frame'), task.get('task'), task.get('group')]
+        
+        if task[0] is None: task[0] = "0"
 
-        if task[0] is None:
-            task.insert("0", task)
-
-        self.tasks.insert(self.getInsertIndex(task, before), Task(self, *task))
+        self.tasks.insert(self.getInsertIndex(task, before), Task(self, task[0], task[1], task[2]))
  
         self.freezeExecution = False
 
@@ -91,7 +91,7 @@ class updateThread(threadClass):
 
         rv = []
 
-        while len(self.tasks) > 0 and eval(self.tasks[0].frame) == self.i:
+        while len(self.tasks) > 0 and eval(str(self.tasks[0].frame)) == self.i:
             rv.append(self.tasks[0])
             self.tasks = self.tasks[1:]
 

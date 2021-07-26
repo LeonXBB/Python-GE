@@ -19,10 +19,10 @@ class Settings:
 
         elif self.settingsType == 'app':
 
-            if self.file is None: self.parameters = ['appVersion', 'appLanguage', 'audioExcludedTracks', 'audioIfBeingPlayedTrackOrderRandomized', 'audioAllowTrackRepeatAtCycleEndStart', 'mapKeysFunctions']
+            if self.file is None: self.parameters = ['appVersion', 'appLanguage', 'audioExcludedTracks', 'audioIfBeingPlayedTrackOrderRandomized', 'audioAllowTrackRepeatAtCycleEndStart', 'mapKeysFunctions', 'addons']
             else: self.parameters = list(self.file.getAllValues().keys())
 
-            self.defaultValues = ['0.1 Alpha', 'EN', [3,4,5], 'cycle', 0, {}]
+            self.defaultValues = ['0.1 Alpha', 'EN', [3,4,5], 'cycle', 0, {}, {}]
 
         self.loadValues()
 

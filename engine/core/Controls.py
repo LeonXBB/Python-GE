@@ -37,4 +37,4 @@ class controlsThread(threadClass):
 
             while True:
                 if not self.engine.controlsThread.threadStopFlag:
-                    pass
+                    self.executeAddons()

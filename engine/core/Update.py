@@ -134,6 +134,9 @@ class updateThread(threadClass):
 
         while True:
             if not self.threadStopFlag:
+                
                 if not self.clockStartedFlag:
                     self.engine.clock.schedule_interval(self.execute, self.updateFrequency)
                     self.clockStartedFlag = True
+
+                self.executeAddons()

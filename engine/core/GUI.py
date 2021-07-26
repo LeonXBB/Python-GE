@@ -70,4 +70,4 @@ class GUIThread(threadClass):
 
         while True:
             if not self.threadStopFlag:
-                pass
+                self.executeAddons()

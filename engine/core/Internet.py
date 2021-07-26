@@ -8,4 +8,4 @@ class internetThread(threadClass):
 
         while True:
             if not self.threadStopFlag:
-                pass
+                self.executeAddons()

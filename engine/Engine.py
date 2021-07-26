@@ -1,3 +1,5 @@
+import importlib
+
 from engine.JSONFile import JSONFile as JSONFile
 from engine.Settings import Settings as Settings
 
@@ -13,7 +15,7 @@ from kivy.clock import Clock
 
 from kivy.uix.screenmanager import ScreenManager, NoTransition
 
-class Engine(App): #settings, clock, screenManager, threads
+class Engine(App): #settings, clock, screenManager, threads, addons
 
     def __init__(self, **kwargs):
         
@@ -27,8 +29,10 @@ class Engine(App): #settings, clock, screenManager, threads
 
         self.clock = Clock       
 
-        self.GUIThread = GUIThread(self, threadName='GUI')
-        self.audioThread = audioThread(self, threadName='Audio', threads=[], tracksOrder=None, address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks, delay=0)
+        self.loadedAddons = self.loadAddons()
+
+        self.GUIThread = GUIThread(self, threadName='GUI', screenManager=ScreenManager(transition=NoTransition()))
+        self.audioThread = audioThread(self, threadName='Audio', threads=[], address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks, delay=0)
         self.controlsThread = controlsThread(self, threadName='Controls', mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
         self.updateThread = updateThread(self, threadName='Update', i=0, tasks=[], pausedGroups=[], updateFrequency=self.engineSettings.updateFrequency)
         self.internetThread = internetThread(self, threadName='Internet')
@@ -39,8 +43,7 @@ class Engine(App): #settings, clock, screenManager, threads
 
         super().__init__(**kwargs)
 
-        self.screenManager = ScreenManager(transition=NoTransition())
-        return self.screenManager
+        return self.GUIThread.screenManager
 
     def start(self):
 
@@ -49,6 +52,24 @@ class Engine(App): #settings, clock, screenManager, threads
 
         self.run()
  
+    def loadAddons(self):
+        
+        rv = []
+
+        for addon in self.appSettings.addons.keys():
+            if self.appSettings.addons.get(addon):
+                
+                try:
+                    addonModule = importlib.import_module('engine.addons.' + addon)
+                except:
+                    addonModule = importlib.import_module('app.addons' + addon)
+                
+                classObject = getattr(addonModule, addon)
+                
+                rv.append(classObject(self, addon))
+                
+        return rv
+
     def changeSettings(self): #TODO write it
         pass
 

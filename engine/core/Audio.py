@@ -121,6 +121,8 @@ class audioThread(threadClass):
 
     def addThread_s_(self, threadsNumber):
           
+        print('2-0')
+
         if threadsNumber is None:
             threadsNumber = len(self.threads)
 

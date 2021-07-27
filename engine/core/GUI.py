@@ -52,21 +52,21 @@ class GUIThread(threadClass):
         self.engine.screenManager.current = 'Loading Screen'
         import time 
         time.sleep(2.5)'''
-        self.engine.updateThread.addTask({"task": "self.engine.controlsThread.freezeKeyboardFlag = False", "group": "Controls"})
-        self.engine.updateThread.addTask({"task": "self.engine.GUIThread.pushPastIntro()", "group": "GUI"})
-        self.engine.updateThread.addTask({"task": "self.engine.audioThread.playAllTracksFlag = [True, True]", "group": "Audio"})
+        #self.engine.updateThread.addTask({"task": "self.engine.controlsThread.freezeKeyboardFlag = False", "group": "Controls"})
+        #self.engine.updateThread.addTask({"task": "self.engine.GUIThread.pushPastIntro()", "group": "GUI"})
+        #self.engine.updateThread.addTask({"task": "self.engine.audioThread.playAllTracksFlag = [True, True]", "group": "Audio"})
 
     def loop(self, dt):
         
         self.threadLoopOverWrittenFlag = True
         self.screenManagerPassedFlag = False 
 
-        while not self.screenManagerPassedFlag:
+        ''' while not self.screenManagerPassedFlag:
             try:
                 self.showIntro()
                 self.screenManagerPassedFlag = True
             except:
-                pass
+                pass'''
 
         while True:
             if not self.threadStopFlag:

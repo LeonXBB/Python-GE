@@ -17,25 +17,25 @@ class threadClass(threading.Timer):
         self.threadStopFlag = False
         self.threadLoopOverWrittenFlag = False
 
-    def getAddons(self):
-
-        rv = []
-
-        for loadedAddon in self.engine.loadedAddons:
-            if self.threadName in loadedAddon.threadsConcernded: 
-                rv.append(loadedAddon)
-
-        return rv
-
     def update(self, **kwargs):
         
         for kwarg in kwargs:
             setattr(self, kwarg, kwargs.get(kwarg))
 
+    def getAddons(self):
+
+        rv = []
+
+        for loadedAddon in self.engine.loadedAddons.keys():
+            if self.threadName in self.engine.loadedAddons.get(loadedAddon).threadsConcerned: 
+                rv.append(self.engine.loadedAddons.get(loadedAddon))
+
+        return rv
+
     def executeAddons(self):
         
         for addon in self.addons:
-            if not addon.addonStoppedFlag and not addon.addonBeingExecutedFlag:
+            if not addon.addonStoppedFlag and not addon.addonBeingExecutedFlag and addon.autostart:
                 addon.start()
                 self.currentAddon = addon
 

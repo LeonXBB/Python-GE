@@ -1,15 +1,28 @@
+from os import getcwd
 from engine.Addon import Addon
 
 class ShowIntro(Addon):
     
-    def start(self):
+    def __init__(self, engine, name):
 
-        self.threadsConcernded = ['GUI']
+        super().__init__(engine, name)
+        
+        self.threadsConcerned = ['GUI']
         self.relatedFlags = {}
+        self.autostart = True
+        self.parameters = {"Background Music": True}
+
+    def start(self):
         self._launch() 
 
     def stop(self):
         self._stop()
+
+    def pause(self):
+        self._pause()
+
+    def resume(self):
+        self._resume()
 
     def func(self):
         
@@ -17,7 +30,12 @@ class ShowIntro(Addon):
         self.engine.screenManager.add_widget(lS)
         self.engine.screenManager.current = 'Loading Screen'
         import time 
-        time.sleep(2.5)'''
-        self.engine.updateThread.addTask({"task": "self.engine.controlsThread.freezeKeyboardFlag = False", "group": "Controls"})
-        self.engine.updateThread.addTask({"task": "self.engine.GUIThread.pushPastIntro()", "group": "GUI"})
-        self.engine.updateThread.addTask({"task": "self.engine.audioThread.playAllTracksFlag = [True, True]", "group": "Audio"})
+        time.sleep(2.5)
+        '''
+        self.engine.updateThread.addTask({"task": "self.engine.controlsThread.freezeKeyboardFlag = False", "group": "Controls ShowIntro"})
+        self.engine.updateThread.addTask({"task": "self.engine.GUIThread.pushPastIntro()", "group": "GUI ShowIntro"})
+        
+        if self.parameters.get('Background Music'):
+            self.engine.updateThread.addTask({"task": "self.engine.loadedAddons.get('PlayBackgroundMusicInLoops').start()", "group": "ShowIntro"})
+
+        self.pause()

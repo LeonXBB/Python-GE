@@ -54,7 +54,7 @@ class Engine(App): #settings, clock, screenManager, threads, addons
  
     def loadAddons(self):
         
-        rv = []
+        rv = {}
 
         for addon in self.appSettings.addons.keys():
             if self.appSettings.addons.get(addon):
@@ -62,11 +62,11 @@ class Engine(App): #settings, clock, screenManager, threads, addons
                 try:
                     addonModule = importlib.import_module('engine.addons.' + addon)
                 except:
-                    addonModule = importlib.import_module('app.addons' + addon)
+                    addonModule = importlib.import_module('app.addons.' + addon)
                 
                 classObject = getattr(addonModule, addon)
                 
-                rv.append(classObject(self, addon))
+                rv[addon] = classObject(self, addon)
                 
         return rv
 

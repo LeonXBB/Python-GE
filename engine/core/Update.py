@@ -119,8 +119,12 @@ class updateThread(threadClass):
                 self.pauseGroups()
 
                 for task in self.getTasks():
-                    task.execute()
-                    
+                    try:
+                        print(task.instruction)
+                        task.execute()
+                    except:
+                        raise RuntimeError
+
                 self.i += 1
 
             return True

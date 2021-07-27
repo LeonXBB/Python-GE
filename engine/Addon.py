@@ -10,18 +10,19 @@ class Addon:
 
     def ensureFlags(self):    
         
-        for threadName in self.relatedFlags.keys:
+        for threadName in self.relatedFlags.keys():
             
             for thread in self.engine.threads:
                 
                 if thread.threadName == threadName:
-                    for flag in self.file.get('relatedFlag').get('threadName'):
+                    for flag in self.relatedFlags.get(threadName):
                         setattr(thread, flag[0], flag[1])
             
-                for subthread in thread.threads:
-                    if subthread.threadName == threadName:
-                        for flag in self.file.get('relatedFlag').get('threadName'):
-                            setattr(subthread, flag[0], flag[1])
+                if hasattr(thread, 'threads'):
+                    for subthread in thread.threads:
+                        if subthread.threadName == threadName:
+                            for flag in self.relatedFlags.get(threadName):
+                                setattr(subthread, flag[0], flag[1])
 
     def _launch(self):
         
@@ -36,3 +37,9 @@ class Addon:
         self.addonStoppedFlag = True
         self.addonBeingExecutedFlag = False
         self.engine.updateThread.removeTask('group', self.name)
+
+    def _pause(self):
+        self.addonStoppedFlag = True
+
+    def _resume(self):
+        self.addonStoppedFlag = False

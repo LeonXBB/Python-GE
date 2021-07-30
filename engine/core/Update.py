@@ -3,7 +3,7 @@ from engine.threadClass import threadClass
 
 class Task:
 
-    def __init__(self, mainThread, frame, instruction, group='') -> None:
+    def __init__(self, mainThread, frame, instruction, group) -> None:
         
         self.mainThread = mainThread
         self.engine = self.mainThread.engine
@@ -24,12 +24,10 @@ class updateThread(threadClass):
         elif to == 'seconds':
             return value * self.updateFrequency
 
-    def getInsertIndex(self, taskData, before=False):
+    def getInsertIndex(self, taskData, before=False): 
         
         indexes = [int(self.tasks[i].frame) for i in range(len(self.tasks))]
         taskData[0] = int(taskData[0])
-
-        if taskData[0] < self.i: taskData[0] = self.i
 
         closestLowerIndex = None
         closestHigherIndex = None
@@ -40,13 +38,13 @@ class updateThread(threadClass):
             if indexes[i] < taskData[0]: closestLowerIndex = i
             if indexes[i] == taskData[0] and startIndex is None: startIndex = i
             if indexes[i] == taskData[0]: endIndex = i
-            if indexes[i] > taskData[0] and closestHigherIndex is None: closestHigherIndex = i 
+            if indexes[i] > taskData[0] and closestHigherIndex is None: closestHigherIndex = i
 
         if closestLowerIndex is None: closestLowerIndex = -1
         if closestHigherIndex is None: closestHigherIndex = len(self.tasks)-1
 
         if before: rv = (startIndex if startIndex is not None else closestLowerIndex+1)
-        else: rv = (endIndex if endIndex is not None else closestHigherIndex+1)
+        else: rv = (endIndex+1 if endIndex is not None else closestHigherIndex+1)
 
         return rv
 
@@ -56,7 +54,12 @@ class updateThread(threadClass):
         
         task = [task.get('frame'), task.get('task'), task.get('group')]
         
-        if task[0] is None: task[0] = "0"
+        if task[0] is None: task[0] = str(self.i)
+        elif task[0] == 'next': task[0] = str(self.i+1)
+
+        #print("ADDED TASK: ", str(task))
+
+        #print('INSERT INDEX: ', str(self.getInsertIndex(task, before)))
 
         self.tasks.insert(self.getInsertIndex(task, before), Task(self, task[0], task[1], task[2]))
  
@@ -91,9 +94,9 @@ class updateThread(threadClass):
 
         rv = []
 
-        while len(self.tasks) > 0 and eval(str(self.tasks[0].frame)) == self.i:
+        while len(self.tasks) > 0 and eval(str(self.tasks[0].frame)) <= self.i:
             rv.append(self.tasks[0])
-            self.tasks = self.tasks[1:]
+            self.tasks.pop(0)
 
         return rv
 
@@ -103,6 +106,8 @@ class updateThread(threadClass):
             for pausedGroup in self.pausedGroups:
                 if task.group in pausedGroup:
 
+                    #print("PAUSE UPDATE, CURRENT FRAME: ", task.frame)
+
                     if '0+' in task.frame:
                         task.frame = task.frame.split('+', maxSplit=2)
                         task.frame = '0+' + str(int(task.frame[1]) + 1) + '+' + task.frame[2]
@@ -110,24 +115,32 @@ class updateThread(threadClass):
                     else:
                         task.frame = '0+1+' + task.frame
                 
+                    #print("PAUSE UPDATE, UPDATED FRAME: ", task.frame)
+
     def execute(self, dt): #TODO add parallel processing to both receiving tasks and executing them
-        
-        while True:
-            
-            if not self.freezeExecution:
 
+           
+        if not self.freezeExecution:
+
+            if not self.freezeTasksUpdate: 
                 self.pauseGroups()
-
-                for task in self.getTasks():
+                tasksToDo = self.getTasks()
+                self.freezeTasksUpdate = True
+                #print("TASKS GOTTEN: ", str(tasksToDo))
+                for task in tasksToDo:
                     try:
-                        print(task.instruction)
+                        #print("TASK INSTRUCTION: ", str(task.instruction))
                         task.execute()
+                        #print("TASK EXECUTED SUCCESSFULLY")
                     except:
+                        #print("TASK INSTRUCTION FAILED: ", str(task.instruction))
                         raise RuntimeError
 
+                #print("CURRENT I: " + str(self.i+1))
                 self.i += 1
+                self.freezeTasksUpdate = False
 
-            return True
+        return True
 
     def loop(self, dt):
         
@@ -135,6 +148,8 @@ class updateThread(threadClass):
 
         self.freezeExecution = False
         self.clockStartedFlag = False
+        self.freezeTasksUpdate = False
+
 
         while True:
             if not self.threadStopFlag:

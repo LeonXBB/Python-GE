@@ -17,8 +17,6 @@ class playThread(threadClass):
 
         self.copyFromMainThread()
 
-        self.audioObject = self.getAudioObject()
-
         while True:
             if not self.threadStopFlag or not self.mainThread.threadStopFlag:
                 self.executeAddons()
@@ -31,8 +29,48 @@ class playThread(threadClass):
         if not hasattr(self, 'delay'): self.delay = self.mainThread.delay
 
     def getAudioObject(self):
-        audioObject = SoundLoader
+        
+        audioObject = SoundLoader.load((self.address if self.address not in self.name else "") + self.name + (self.extension if self.extension not in self.name else ""))
+        audioObject.volume = self.volume
+
         return audioObject
+
+    def getTime(self, addressString):
+        
+        if self.currentEndingIndex < self.engine.updateThread.i: self.currentEndingIndex = self.engine.updateThread.i
+        
+        dummySL = SoundLoader.load(addressString) #We not immediately loading audio file to play into our AudioObject as it may happen in different periods of time and also we intend to reuse it. Here, we use a dummy object to get a length of the file that hasn't been loaded yet. #TODO Change to a 3rd party module so we can save memory / processing tume, maybe? Remember about files extensions.
+        dummySL.play()
+        dummySL.volume = 0
+
+        rv = (self.currentEndingIndex if self.engine.engineSettings.audioAppendOn == 'start' else self.engine.updateThread.i) + self.engine.updateThread.to('i', self.delay)
+        self.currentEndingIndex = rv + self.engine.updateThread.to('i', dummySL.length)
+
+        dummySL.stop()
+
+        print("TIME RV: ", str(rv))
+
+        return rv 
+
+    def addTask(self, filename):
+        
+        frame = self.getTime((self.address if self.address not in filename else "") + filename + (self.extension if self.extension not in filename else ""))
+        instruction = 'self.engine.audioThread.threads[' + str(len(self.mainThread.threads)-1) +'].play()'
+        group = self.threadName + ' ' + (self.currentAddon.name if self.currentAddon is not None else '')
+
+        self.engine.updateThread.addTask({"frame": frame, "task": instruction, "group": group})
+
+    def addPlayQueue(self):
+
+        for i in range(len(self.filenamesToPlayQueue)):
+            self.addTask(self.filenamesToPlayQueue[i])
+
+    def updatePlayQueue(self):
+        
+        if len(self.filenamesToPlayQueue) > 0:
+            
+            self.name = self.filenamesToPlayQueue[0]
+            if len(self.filenamesToPlayQueue) > 1: self.filenamesToPlayQueue = self.filenamesToPlayQueue[1:]
 
     def insertAudio_s_IntoQueue(self, audios):
         
@@ -45,35 +83,11 @@ class playThread(threadClass):
                 self.freezeAudioInsertFlag = True
                 self.filenamesToPlayQueue.append(audio)
                 self.freezeAudioInsertFlag = False
+
+            if self.engine.engineSettings.audioAppendOn == 'start':
+                self.addPlayQueue()
             
             break
-
-    def getTime(self, addressString):
-        
-        if self.currentEndingIndex < self.engine.updateThread.i: self.currentEndingIndex = self.engine.updateThread.i
-        
-        dummySL = SoundLoader #We not immediately loading audio file to play into our AudioObject as it may happen in different periods of time and also we intend to reuse it. Here, we use a dummy object to get a length of the file that hasn't been loaded yet. #TODO Change to a 3rd party module so we can save memory / processing tume, maybe? Remember about files extensions.
-        dummySL.load(addressString)
-
-        rv = (self.currentEndingIndex if self.engine.engineSettings.audioAppendOn == 'start' else self.engine.updateThread.i) + self.engine.updateThread.to('i', self.delay)
-        self.currentEndingIndex = rv + self.engine.updateThread.to('i', dummySL.length)
-
-        return rv 
-
-    def addTask(self, filename):
-        
-        time = self.getTime((self.address if self.address not in filename else "") + filename + (self.extension if self.extension not in filename else ""))
-        instruction = 'self.engine.audioThread.threads[' + self.selfIndex +'].play()'
-        group = self.threadName + ' ' + (self.currentAddon.name if self.currentAddon is not None else '')
-
-        self.engine.updateThread.addTask({"time": time,"task": instruction, "group": group})
-
-    def updatePlayQueue(self):
-        
-        if len(self.filenamesToPlayQueue) > 0:
-            
-            self.name = self.filenamesToPlayQueue[0]
-            if len(self.filenamesToPlayQueue) > 1: self.filenamesToPlayQueue = self.filenamesToPlayQueue[1:]
 
     def play(self):
 
@@ -84,26 +98,21 @@ class playThread(threadClass):
             except:
                 pass
 
-            self.audioObject.load((self.address if self.address not in self.name else "") + self.name + (self.extension if self.extension not in self.name else ""))
-            self.audioObject.volume = self.volume
-
+            self.audioObject = self.getAudioObject()
             self.audioObject.play()
             
             if self.engine.engineSettings.audioAppendOn == 'end' and len(self.filenamesToPlayQueue) > 1:
                 time.sleep(self.audioObject.length)
                 self.addTask(self.filenamesToPlayQueue[1])
 
-    def _start(self):
-
-        super()._start()
-
-        for i in range(1 if self.engine.engineSettings.audioAppendOn == 'end' else len(self.filenamesToPlayQueue)):
-            self.addTask(self.filenamesToPlayQueue[i])
-
     def _pause(self):
 
         super()._pause()
-        self.audioObject.pause()
+        
+        try:
+            self.audioObject.pause()
+        except:
+            pass
 
     def _resume(self):
         
@@ -121,8 +130,6 @@ class audioThread(threadClass):
 
     def addThread_s_(self, threadsNumber):
           
-        print('2-0')
-
         if threadsNumber is None:
             threadsNumber = len(self.threads)
 

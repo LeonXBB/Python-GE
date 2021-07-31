@@ -49,13 +49,14 @@ class playThread(threadClass):
         dummySL.stop()
 
         print("TIME RV: ", str(rv))
+        print("I: ", str(self.engine.updateThread.i))
 
         return rv 
 
     def addTask(self, filename):
         
         frame = self.getTime((self.address if self.address not in filename else "") + filename + (self.extension if self.extension not in filename else ""))
-        instruction = 'self.engine.audioThread.threads[' + str(len(self.mainThread.threads)-1) +'].play()'
+        instruction = 'self.engine.audioThread.threads[' + str(len(self.mainThread.threads)-1) +'].playAudio()'
         group = self.threadName + ' ' + (self.currentAddon.name if self.currentAddon is not None else '')
 
         self.engine.updateThread.addTask({"frame": frame, "task": instruction, "group": group})
@@ -89,7 +90,7 @@ class playThread(threadClass):
             
             break
 
-    def play(self):
+    def playAudio(self):
 
             self.updatePlayQueue()
 
@@ -128,21 +129,21 @@ class playThread(threadClass):
 
 class audioThread(threadClass):
 
-    def addThread_s_(self, threadsNumber):
+    def addThread_s_(self, threadNumber):
           
-        if threadsNumber is None:
-            threadsNumber = len(self.threads)
+        if threadNumber is None:
+            threadNumber = len(self.threads)
 
-        while len(self.threads) <= threadsNumber:
+        while len(self.threads) <= threadNumber:
             newPlayThread = playThread(self.engine, mainThread=self, threadName='Audio Thread ' + str(len(self.threads)))
             self.threads.append(newPlayThread)
 
-    def deleteThread_s_(self, threadsNumber):
+    def deleteThread_s_(self, threadNumber):
 
-        for thread in self.threads[threadsNumber:]:
+        for thread in self.threads[threadNumber:]:
             thread.stop() # TODO edit this function to deal not only with sound.
 
-        self.threads = self.threads[:threadsNumber]
+        self.threads = self.threads[:threadNumber]
 
     def loop(self, dt):
        

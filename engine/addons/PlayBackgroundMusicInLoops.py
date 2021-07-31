@@ -9,7 +9,7 @@ class PlayBackgroundMusicInLoops(Addon):
         self.threadsConcerned = ['Audio']
         self.relatedFlags = {"Audio": [["playAllTracksFlag", True]]}
         self.autostart = False
-        self.parameters = {"Randomly": True}
+        self.parameters = {"randomly": True, "tracksOrder": [], "lastTrack": None}
 
     def start(self):
         self._launch() 
@@ -33,11 +33,7 @@ class PlayBackgroundMusicInLoops(Addon):
             rvPossible = False
 
             def getLastTrack(self):
-                
-                if hasattr(self.engine.audioThread, "tracksOrder"):
-                    return self.engine.audioThread.tracksOrder
-                else:
-                    return None 
+                return self.parameters.get('lastTrack')
 
             def getAudioNumbersList(self):
 
@@ -70,18 +66,18 @@ class PlayBackgroundMusicInLoops(Addon):
 
             return clearedShuffledOrder
         
-        while self.engine.audioThread.playAllTracksFlag:
-            
-            self.resume() #TODO add if statement
-            
-            if (not hasattr(self.engine.audioThread, 'tracksOrder')) or (self.engine.appSettings.audioIfBeingPlayedTrackOrderRandomized == 'cycle'):
-                self.engine.audioThread.tracksOrder = getTracksOrder(self, self.parameters.get('Randomly'))
+        if self.engine.audioThread.playAllTracksFlag:
 
-            self.engine.updateThread.addTask({"frame": "next", "task": "self.engine.audioThread.addThread_s_(0)", "group": 'Audio Thread 0 PlayBackgroundMusicInLoops'})
-            self.engine.updateThread.addTask({"frame": "next", "task": "self.engine.audioThread.threads[0].start()", "group": 'Audio Thread 0 PlayBackgroundMusicInLoops'})
-            self.engine.updateThread.addTask({"frame": "next", "task": 'self.engine.audioThread.threads[0].insertAudio_s_IntoQueue([str(i) for i in self.engine.audioThread.tracksOrder])', "group": 'Audio Thread 0 PlayBackgroundMusicInLoops'})
-
-            '''while self.engine.updateThread.i < self.engine.audioThread.threads[0].currentEndingIndex: 
-                self.pause()
-            '''
-            self.engine.audioThread.playAllTracksFlag = False #TODO think something about repeat
+            if (len(self.engine.audioThread.threads) == 0) or (len(self.engine.audioThread.threads) > 0 and self.engine.audioThread.threads[0].currentEndingIndex <= self.engine.updateThread.i):
+                if (len(self.parameters.get('tracksOrder')) == 0) or (self.engine.appSettings.audioIfBeingPlayedTrackOrderRandomized == 'cycle'):
+                    self.parameters["tracksOrder"] = getTracksOrder(self, self.parameters.get('randomly'))
+                self.parameters['lastTrack'] = self.parameters.get('tracksOrder')[-1]
+                print("I: ", str(self.engine.updateThread.i))
+                self.engine.updateThread.addTask({"task": "self.engine.audioThread.addThread_s_(0)", "group": 'Audio Thread 0 PlayBackgroundMusicInLoops'})
+                print("I: ", str(self.engine.updateThread.i))
+                self.engine.updateThread.addTask({"task": "if not self.engine.audioThread.threads[0].is_alive(): self.engine.audioThread.threads[0].start()", "group": 'Audio Thread 0 PlayBackgroundMusicInLoops'})
+                print("I: ", str(self.engine.updateThread.i))
+                self.engine.updateThread.addTask({"task": 'self.engine.audioThread.threads[0].insertAudio_s_IntoQueue([str(i) for i in self.engine.loadedAddons.get("PlayBackgroundMusicInLoops").parameters.get("tracksOrder")])', "group": 'Audio Thread 0 PlayBackgroundMusicInLoops'})
+                print("I: ", str(self.engine.updateThread.i))
+                #self.engine.updateThread.addTask({"frame": "self.engine.audioThread.threads[0].currentEndingIndex", "task": "self.engine.loadedAddons.get('PlayBackgroundMusicInLoops').start()", "group": "ShowIntro"})
+                #self.autostart = True

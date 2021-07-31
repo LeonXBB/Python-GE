@@ -27,6 +27,7 @@ class updateThread(threadClass):
     def getInsertIndex(self, taskData, before=False): 
         
         indexes = [int(self.tasks[i].frame) for i in range(len(self.tasks))]
+        
         taskData[0] = int(taskData[0])
 
         closestLowerIndex = None
@@ -54,10 +55,9 @@ class updateThread(threadClass):
         
         task = [task.get('frame'), task.get('task'), task.get('group')]
         
-        if task[0] is None: task[0] = str(self.i)
-        elif task[0] == 'next': task[0] = str(self.i+1)
+        if type(task[0]) == str: task[0] == str(eval(task[0]))
+        if task[0] is None: task[0] = str(self.i+1)
 
-        #print("ADDED TASK: ", str(task))
 
         #print('INSERT INDEX: ', str(self.getInsertIndex(task, before)))
 
@@ -129,7 +129,7 @@ class updateThread(threadClass):
                 #print("TASKS GOTTEN: ", str(tasksToDo))
                 for task in tasksToDo:
                     try:
-                        #print("TASK INSTRUCTION: ", str(task.instruction))
+                        print("TASK INSTRUCTION: ", str(task.instruction))
                         task.execute()
                         #print("TASK EXECUTED SUCCESSFULLY")
                     except:

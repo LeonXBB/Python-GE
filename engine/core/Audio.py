@@ -43,7 +43,7 @@ class playThread(threadClass):
         dummySL.play()
         dummySL.volume = 0
 
-        rv = (self.currentEndingIndex if self.engine.engineSettings.audioAppendOn == 'start' else self.engine.updateThread.i) + self.engine.updateThread.to('i', self.delay)
+        rv = (self.currentEndingIndex if self.engine.engineSettings.audioAppendOn == 'start' else self.engine.updateThread.i) + self.engine.updateThread.to('i', self.delay) + 1
         self.currentEndingIndex = rv + self.engine.updateThread.to('i', dummySL.length)
 
         dummySL.stop()
@@ -129,6 +129,7 @@ class playThread(threadClass):
 
 class audioThread(threadClass):
 
+   
     def addThread_s_(self, threadNumber):
           
         if threadNumber is None:

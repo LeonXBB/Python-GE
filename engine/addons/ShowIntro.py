@@ -36,6 +36,6 @@ class ShowIntro(Addon):
         self.engine.updateThread.addTask({"task": "self.engine.GUIThread.pushPastIntro()", "group": "GUI ShowIntro"})
         
         if self.parameters.get('Background Music'):
-            self.engine.updateThread.addTask({"task": "self.engine.loadedAddons.get('PlayBackgroundMusicInLoops').start()", "group": "ShowIntro"})
+            self.engine.updateThread.addTask({"task": "self.engine.loadedAddons.get('PlayBackgroundMusicInLoops').start()", "group": "Audio Thread 0 PlayBackgroundMusicInLoops"})
 
         self.pause()

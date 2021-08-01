@@ -41,20 +41,20 @@ class GUIThread(threadClass):
     def pushPastIntro(self):
 
         '''sS = startingScreen(self.engine, True)
-        self.engine.screenManager.add_widget(sS)
-        self.engine.screenManager.current = 'Starting Screen'''
+        self.engine.window.screenManager.add_widget(sS)
+        self.engine.window.screenManager.current = 'Starting Screen'''
         pass
 
     def showIntro(self):
 
         '''lS = loadingScreen(self.engine, True)
-        self.engine.screenManager.add_widget(lS)
-        self.engine.screenManager.current = 'Loading Screen'
+        self.engine.window.screenManager.add_widget(lS)
+        self.engine.window.screenManager.current = 'Loading Screen'
         import time 
-        time.sleep(2.5)'''
-        #self.engine.updateThread.addTask({"task": "self.engine.controlsThread.freezeKeyboardFlag = False", "group": "Controls"})
-        #self.engine.updateThread.addTask({"task": "self.engine.GUIThread.pushPastIntro()", "group": "GUI"})
-        #self.engine.updateThread.addTask({"task": "self.engine.audioThread.playAllTracksFlag = [True, True]", "group": "Audio"})
+        time.sleep(2.5)
+        self.engine.updateThread.addTask({"task": "self.engine.controlsThread.freezeKeyboardFlag = False", "group": "Controls"})
+        self.engine.updateThread.addTask({"task": "self.engine.GUIThread.pushPastIntro()", "group": "GUI"})
+        self.engine.updateThread.addTask({"task": "self.engine.audioThread.playAllTracksFlag = [True, True]", "group": "Audio"})'''
 
     def loop(self, dt):
         

@@ -1,10 +1,20 @@
-import threading
+import multiprocessing
+from os import stat
 
-class threadClass(threading.Timer):
+class threadClass(multiprocessing.Process):
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        for key in state.keys():
+            state[key] = None
+        return state
+
+    def __reduce__(self):
+        return super().__reduce__()
 
     def __init__(self, engine, **kwargs):
         
-        super().__init__(interval=0, function=self.loop, args=(self,))
+        super().__init__(target=self.loop, args=(self,))
         
         self.update(**kwargs)
 
@@ -32,7 +42,7 @@ class threadClass(threading.Timer):
 
         return rv
 
-    def executeAddons(self):
+    def executeAddons(self):  #TODO multiprocess
         
         for addon in self.addons:
             if not addon.addonStoppedFlag and not addon.addonBeingExecutedFlag and addon.autostart:
@@ -58,7 +68,7 @@ class threadClass(threading.Timer):
         self.threadStopFlag = True
         self.engine.updateThread.removeTask('group', self.threadName)
 
-    def loop(self, dt):
-
+    def loop(self):
+        print("HERE1234567890")
         while not self.threadLoopOverWrittenFlag:
             pass

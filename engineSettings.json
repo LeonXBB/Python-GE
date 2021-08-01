@@ -2,7 +2,7 @@
     "engineVersion": "0.1 Alpha",
     "engineExitOnEscape": 0,
     "engineClockType": "free_all",
-    "audioVolume": 1,
+    "audioVolume": 0,
     "audioDefaultAddress": "./app/audio/",
     "audioDefaultExtension": ".wav",
     "audioAppendOn": "start",
@@ -11,5 +11,5 @@
     "windowWidth": 500,
     "windowHeight" : 500,
     "windowShowCursor": 0,
-    "updateFrequency": 1
+    "updateFrequency": 0.5
 }

@@ -17,6 +17,10 @@ class Task:
 
 class updateThread(threadClass):
 
+    def incI(self, dt):
+        print("I: ", str(self.i))
+        self.i+=1
+
     def to(self, to, value):
 
         if to == 'i':
@@ -54,10 +58,13 @@ class updateThread(threadClass):
         self.freezeExecution = True
         
         task = [task.get('frame'), task.get('task'), task.get('group')]
-        
-        if type(task[0]) == str: task[0] == str(eval(task[0]))
-        if task[0] is None: task[0] = str(self.i+1)
+               
+        if type(task[0]) == str and task[0][0] == '+': task[0] = self.i + int(task[0][1:]) 
+        elif type(task[0]) == str and task[0][0] != '+': 
+            task[0] = str(eval(task[0]))
+            print('TASK 0: ', task[0])
 
+        if task[0] is None: task[0] = str(self.i+1)
 
         #print('INSERT INDEX: ', str(self.getInsertIndex(task, before)))
 
@@ -118,7 +125,6 @@ class updateThread(threadClass):
                     #print("PAUSE UPDATE, UPDATED FRAME: ", task.frame)
 
     def execute(self, dt): #TODO add parallel processing to both receiving tasks and executing them
-
            
         if not self.freezeExecution:
 
@@ -137,7 +143,7 @@ class updateThread(threadClass):
                         raise RuntimeError
 
                 #print("CURRENT I: " + str(self.i+1))
-                self.i += 1
+                #self.i += 1
                 self.freezeTasksUpdate = False
 
         return True
@@ -150,12 +156,12 @@ class updateThread(threadClass):
         self.clockStartedFlag = False
         self.freezeTasksUpdate = False
 
-
         while True:
             if not self.threadStopFlag:
                 
                 if not self.clockStartedFlag:
-                    self.engine.clock.schedule_interval(self.execute, self.updateFrequency)
+                    self.engine.window.clock.schedule_interval(self.incI, self.updateFrequency)
+                    self.engine.window.clock.schedule_interval(self.execute, self.updateFrequency)
                     self.clockStartedFlag = True
 
                 self.executeAddons()

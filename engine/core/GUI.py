@@ -59,7 +59,7 @@ class GUIThread(threadClass):
     def loop(self, dt):
         
         self.threadLoopOverWrittenFlag = True
-        self.screenManagerPassedFlag = False 
+        #self.screenManagerPassedFlag = False 
 
         ''' while not self.screenManagerPassedFlag:
             try:

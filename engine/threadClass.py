@@ -1,16 +1,6 @@
 import multiprocessing
-from os import stat
 
 class threadClass(multiprocessing.Process):
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        for key in state.keys():
-            state[key] = None
-        return state
-
-    def __reduce__(self):
-        return super().__reduce__()
 
     def __init__(self, engine, **kwargs):
         
@@ -69,6 +59,5 @@ class threadClass(multiprocessing.Process):
         self.engine.updateThread.removeTask('group', self.threadName)
 
     def loop(self):
-        print("HERE1234567890")
         while not self.threadLoopOverWrittenFlag:
             pass

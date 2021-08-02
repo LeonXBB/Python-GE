@@ -13,41 +13,49 @@ from engine.core.Internet import internetThread as internetThread
 
 from engine.gfx.Window import Window
 
-class Engine: #settings, threads, addons, window - (clock, screenManager)
+class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
 
-    def __getstate__(self):
+    '''def __getstate__(self):
         state = self.__dict__.copy()
-        for key in state.keys():
-            state[key] = None
         return state
-
-    def __reduce__(self):
-        return super().__reduce__()
+      
+    def __setstate__(self, state):      
+        self.__dict__.update(state)''' 
 
     def __init__(self):
         
-        self.engineSettings = Settings('engine')
-        self.appSettings = Settings('app')      
         self.loadSettings()
-
+        self.window = Window()
+        #self.pipes = self.getPipes(6)
         self.loadedAddons = self.loadAddons()
 
-        self.GUIThread = GUIThread(self, threadName='GUI')
-        self.audioThread = audioThread(self, threadName='Audio', threads=[], address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks, delay=0)
-        self.controlsThread = controlsThread(self, threadName='Controls', mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
-        self.updateThread = updateThread(self, threadName='Update', i=0, tasks=[], pausedGroups=[], updateFrequency=self.engineSettings.updateFrequency)
-        self.internetThread = internetThread(self, threadName='Internet')
+    def initThreads(self):
+
+        self.GUIThread = GUIThread(self.pipes[0][1], threadName='GUI')
+        self.audioThread = audioThread(self.pipes[1][1], threadName='Audio', threads=[], address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks, delay=0)
+        self.controlsThread = controlsThread(self.pipes[2][1], threadName='Controls', mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
+        self.updateThread = updateThread(self.pipes[3][1], threadName='Update', i=0, tasks=[], pausedGroups=[], updateFrequency=self.engineSettings.updateFrequency)
+        self.internetThread = internetThread(self.pipes[4][1], threadName='Internet')
+
+        self.appThread = None
 
         self.threads = [self.GUIThread, self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
         
     def start(self):
 
-        self.window = Window()
+        for thread in self.threads: thread.start()
 
-        pool = multiprocessing.Pool(processes=len(self.threads))
-        pool.map(threadClass.super().start, self.threads)
- 
         self.window.run()
+
+    '''def getPipes(self, amount):
+
+        rv = []
+
+        for i in range(amount):
+            rv.append(multiprocessing.Pipe())
+            rv[-1][0].send(self)
+
+        return rv'''
 
     def loadAddons(self):
         
@@ -55,7 +63,10 @@ class Engine: #settings, threads, addons, window - (clock, screenManager)
 
         for addon in self.appSettings.addons.keys():
             if self.appSettings.addons.get(addon):
-                
+
+                pipe = multiprocessing.Pipe()
+                pipe[0].send(self)
+
                 try:
                     addonModule = importlib.import_module('engine.addons.' + addon)
                 except:
@@ -63,7 +74,7 @@ class Engine: #settings, threads, addons, window - (clock, screenManager)
                 
                 classObject = getattr(addonModule, addon)
                 
-                rv[addon] = classObject(self, addon)
+                rv[addon] = classObject(pipe[1], addon)
                 
         return rv
 
@@ -71,5 +82,8 @@ class Engine: #settings, threads, addons, window - (clock, screenManager)
         pass
 
     def loadSettings(self):
+
+        self.engineSettings = Settings('engine')
+        self.appSettings = Settings('app')      
         self.engineSettings.applyValues()
         self.appSettings.applyValues()

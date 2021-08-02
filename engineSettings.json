@@ -2,7 +2,7 @@
     "engineVersion": "0.1 Alpha",
     "engineExitOnEscape": 0,
     "engineClockType": "free_all",
-    "audioVolume": 0,
+    "audioVolume": 1,
     "audioDefaultAddress": "./app/audio/",
     "audioDefaultExtension": ".wav",
     "audioAppendOn": "start",

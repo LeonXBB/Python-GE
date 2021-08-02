@@ -3,14 +3,14 @@ from engine.Addon import Addon
 
 class ShowIntro(Addon):
     
-    def __init__(self, engine, name):
+    def __init__(self, enginePipe, name):
 
-        super().__init__(engine, name)
+        super().__init__(enginePipe, name)
         
         self.threadsConcerned = ['GUI']
         self.relatedFlags = {}
         self.autostart = True
-        self.parameters = {"Background Music": True}
+        self.parameters = {"Background Music": False}
 
     def start(self):
         self._launch() 
@@ -32,7 +32,7 @@ class ShowIntro(Addon):
         import time 
         time.sleep(2.5)
         '''
-        self.engine.updateThread.addTask({"task": "self.engine.controlsThread.freezeKeyboardFlag = False", "group": "Controls ShowIntro"})
+        self.engine.updateThread.addTask({"task": "self.engine.loadedAddons.get('ProcessKeyBoardKey').start()", "group": "Controls ShowIntro"})
         self.engine.updateThread.addTask({"task": "self.engine.GUIThread.pushPastIntro()", "group": "GUI ShowIntro"})
         
         if self.parameters.get('Background Music'):

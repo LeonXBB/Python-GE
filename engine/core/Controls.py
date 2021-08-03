@@ -5,8 +5,8 @@ class controlsThread(threadClass):
     
     def loop(self, dt):
             
-            self.threadLoopOverWrittenFlag = True
+        self.waitForOtherThreads()
 
-            while True:
-                if not self.threadStopFlag:
-                    self.executeAddons()
+        while True:
+            if not self.threadStopFlag:
+                self.executeAddons()

@@ -2,9 +2,9 @@ from engine.Addon import Addon
 
 class PlayBackgroundMusicInLoops(Addon):
 
-    def __init__(self, enginePipe, name):
+    def __init__(self, engineAddress, name):
 
-        super().__init__(enginePipe, name)
+        super().__init__(engineAddress, name)
         
         self.threadsConcerned = ['Audio']
         self.relatedFlags = {"Audio": [["playAllTracksFlag", True]]}

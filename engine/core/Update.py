@@ -30,9 +30,8 @@ class updateThread(threadClass):
 
     def loop(self, dt):
         
-        self.threadLoopOverWrittenFlag = True
+        self.waitForOtherThreads()
 
-        print(self.engine)
         while True:
             if not self.threadStopFlag:
                 self.executeAddons()

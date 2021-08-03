@@ -2,9 +2,9 @@ from engine.Addon import Addon
 
 class DefaultDispatch(Addon):
 
-    def __init__(self, enginePipe, name):
+    def __init__(self, engineAddress, name):
 
-        super().__init__(enginePipe, name)
+        super().__init__(engineAddress, name)
         
         self.threadsConcerned = ['Update']
         self.relatedFlags = {"Update": [["freezeExecution", False], ["clockStartedFlag", False], ["freezeTasksUpdate", False]]}

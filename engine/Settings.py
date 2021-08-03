@@ -3,12 +3,16 @@ from kivy.config import Config
 
 class Settings:
 
-    def __getstate__(self):
-        state = self.__dict__.copy() 
-        return state
+    def __reduce__(self):
+        print("HERE_3")
+        return(self.__class__, ())
 
-    def __setstate__(self, state):      
-        self.__dict__.update(state) 
+    def __getstate__(self):
+        print("HERE1")
+        return 'Something'
+
+    def __setstate__(self, state):
+        print("HERE2", str(state))
 
     def __init__(self, settingsType):
 

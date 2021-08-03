@@ -1,15 +1,16 @@
 import multiprocessing
+import ctypes
 
 class threadClass(multiprocessing.Process):
 
-    def __init__(self, engine, **kwargs):
+    def __init__(self, engineAddress, **kwargs):
         
         super().__init__(target=self.loop, args=(self,))
         
         self.update(**kwargs)
 
-        self.engine = engine
-        self.addons = self.getAddons()
+        self.engine = ctypes.cast(engineAddress, ctypes.py_object).value
+        #self.addons = self.getAddons()
 
         self.currentAddon = None
 
@@ -58,6 +59,11 @@ class threadClass(multiprocessing.Process):
         self.threadStopFlag = True
         self.engine.updateThread.removeTask('group', self.threadName)
 
-    def loop(self):
-        while not self.threadLoopOverWrittenFlag:
+    def waitForOtherThreads(self):
+        
+        #print(self.threadName,  str(self.engine.__dict__))
+
+        while not hasattr(self.engine, 'threads') or len(self.engine.threads < 5):
             pass
+
+        print('here')

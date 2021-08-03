@@ -1,8 +1,10 @@
+import ctypes
+
 class Addon:
 
-    def __init__(self, engine, name):
+    def __init__(self, engineAddress, name):
 
-        self.engine = engine
+        self.engine = ctypes.cast(engineAddress, ctypes.py_object).value
         self.name = name
 
         self.addonStoppedFlag = False

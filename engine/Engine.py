@@ -1,5 +1,7 @@
 import importlib
-import multiprocessing
+import ctypes
+from logging import exception
+from typing import cast
 
 from engine.JSONFile import JSONFile as JSONFile
 from engine.Settings import Settings as Settings
@@ -14,28 +16,42 @@ from engine.core.Internet import internetThread as internetThread
 from engine.gfx.Window import Window
 
 class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
+   
+    def __getstate__(self):
+        
+        print('here222')
 
-    '''def __getstate__(self):
-        state = self.__dict__.copy()
-        return state
-      
-    def __setstate__(self, state):      
-        self.__dict__.update(state)''' 
+        rv = {}
+        keys = ['engineSettings', 'appSettings', 'window', 'loadedAddons', *(addon for addon in self.appSettings.addons.keys() if self.appSettings.addons.get(addon)), 'GUIThread', 'audioThread', 'controlsThread', 'updateThread', 'internetThread', 'appThread', 'threads']
+        
+        for key in keys:
+            try:
+                rv[key] = id(getattr(self, key))
+            except: 
+                continue
+        
+        return rv
+
+    def __setstate__(self, state):
+        
+        print('here333')
+
+        for key in state.keys():
+            setattr(self, key, ctypes.cast(state.get(key), ctypes.py_object).value)
 
     def __init__(self):
         
         self.loadSettings()
         self.window = Window()
-        #self.pipes = self.getPipes(6)
         self.loadedAddons = self.loadAddons()
 
     def initThreads(self):
 
-        self.GUIThread = GUIThread(self.pipes[0][1], threadName='GUI')
-        self.audioThread = audioThread(self.pipes[1][1], threadName='Audio', threads=[], address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks, delay=0)
-        self.controlsThread = controlsThread(self.pipes[2][1], threadName='Controls', mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
-        self.updateThread = updateThread(self.pipes[3][1], threadName='Update', i=0, tasks=[], pausedGroups=[], updateFrequency=self.engineSettings.updateFrequency)
-        self.internetThread = internetThread(self.pipes[4][1], threadName='Internet')
+        self.GUIThread = GUIThread(id(self), threadName='GUI')
+        self.audioThread = audioThread(id(self), threadName='Audio', threads=[], address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks, delay=0)
+        self.controlsThread = controlsThread(id(self), threadName='Controls', mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
+        self.updateThread = updateThread(id(self), threadName='Update', i=0, tasks=[], pausedGroups=[], updateFrequency=self.engineSettings.updateFrequency)
+        self.internetThread = internetThread(id(self), threadName='Internet')
 
         self.appThread = None
 
@@ -44,18 +60,8 @@ class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
     def start(self):
 
         for thread in self.threads: thread.start()
-
+        
         self.window.run()
-
-    '''def getPipes(self, amount):
-
-        rv = []
-
-        for i in range(amount):
-            rv.append(multiprocessing.Pipe())
-            rv[-1][0].send(self)
-
-        return rv'''
 
     def loadAddons(self):
         
@@ -64,9 +70,6 @@ class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
         for addon in self.appSettings.addons.keys():
             if self.appSettings.addons.get(addon):
 
-                pipe = multiprocessing.Pipe()
-                pipe[0].send(self)
-
                 try:
                     addonModule = importlib.import_module('engine.addons.' + addon)
                 except:
@@ -74,7 +77,7 @@ class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
                 
                 classObject = getattr(addonModule, addon)
                 
-                rv[addon] = classObject(pipe[1], addon)
+                rv[addon] = classObject(id(self), addon)
                 
         return rv
 

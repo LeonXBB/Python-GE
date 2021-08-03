@@ -58,7 +58,7 @@ class GUIThread(threadClass):
 
     def loop(self, dt):
         
-        self.threadLoopOverWrittenFlag = True
+        self.waitForOtherThreads()
         #self.screenManagerPassedFlag = False 
 
         ''' while not self.screenManagerPassedFlag:

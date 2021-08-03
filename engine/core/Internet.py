@@ -4,7 +4,7 @@ class internetThread(threadClass):
 
     def loop(self, dt):
 
-        self.threadLoopOverWrittenFlag = True
+        self.waitForOtherThreads()
 
         while True:
             if not self.threadStopFlag:

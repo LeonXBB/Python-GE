@@ -1,7 +1,7 @@
 import importlib
 import ctypes
-from logging import exception
-from typing import cast
+from multiprocessing.shared_memory import SharedMemory
+import faulthandler
 
 from engine.JSONFile import JSONFile as JSONFile
 from engine.Settings import Settings as Settings
@@ -16,31 +16,49 @@ from engine.core.Internet import internetThread as internetThread
 from engine.gfx.Window import Window
 
 class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
-   
+
+
     def __getstate__(self):
         
-        print('here222')
+        #rv = {}
+        with open('logSave.txt', 'a') as f:
+            faulthandler.enable(file=f)
 
-        rv = {}
-        keys = ['engineSettings', 'appSettings', 'window', 'loadedAddons', *(addon for addon in self.appSettings.addons.keys() if self.appSettings.addons.get(addon)), 'GUIThread', 'audioThread', 'controlsThread', 'updateThread', 'internetThread', 'appThread', 'threads']
-        
-        for key in keys:
-            try:
-                rv[key] = id(getattr(self, key))
-            except: 
-                continue
-        
-        return rv
+            keys = ['engineSettings', 'appSettings', 'window', 'loadedAddons', *(addon for addon in self.appSettings.addons.keys() if self.appSettings.addons.get(addon)), 'GUIThread', 'audioThread', 'controlsThread', 'updateThread', 'internetThread', 'appThread', 'threads']
+            
+            for key in keys:
+                try:
+                    #rv[key] = id(getattr(self, key))
+                    #keyID = id(getattr(self, key))
+                    objID = getattr(self, key)
+                    print("SAVE", key)
+                    #sm = SharedMemory(name=key, size=len(keyID))
+                    #sm.buf = keyID
+                    sm = SharedMemory(name=key, create=True, size=objID.__sizeof__())
+                    sm.buf = objID
+                    print(repr(sm.buf))
+                except: 
+                    continue
+            
+            #rv["self"] = id(self)
+
+            return keys
 
     def __setstate__(self, state):
         
-        print('here333')
+        with open('logLoad.txt', 'a') as f:
+            faulthandler.enable(file=f)
 
-        for key in state.keys():
-            setattr(self, key, ctypes.cast(state.get(key), ctypes.py_object).value)
+            for key in state:
+                print("LOAD", key)
+                #setattr(self, key, ctypes.cast(state.get(key), ctypes.py_object).value)
+                sm = SharedMemory(name=key)
+                print(sm.buf)
+                keyID = sm.buf
+                setattr(self, key, ctypes.cast(keyID, ctypes.py_object.value))
 
     def __init__(self):
-        
+
         self.loadSettings()
         self.window = Window()
         self.loadedAddons = self.loadAddons()

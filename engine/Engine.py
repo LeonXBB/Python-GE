@@ -17,68 +17,63 @@ from engine.gfx.Window import Window
 
 class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
 
-
     def __getstate__(self):
+        pass
+
+        '''rv  = self.__dict__
+        for key in rv.keys():
+            if key != 'window':
+                rv[key] = None
         
-        #rv = {}
-        with open('logSave.txt', 'a') as f:
-            faulthandler.enable(file=f)
-
-            keys = ['engineSettings', 'appSettings', 'window', 'loadedAddons', *(addon for addon in self.appSettings.addons.keys() if self.appSettings.addons.get(addon)), 'GUIThread', 'audioThread', 'controlsThread', 'updateThread', 'internetThread', 'appThread', 'threads']
-            
-            for key in keys:
-                try:
-                    #rv[key] = id(getattr(self, key))
-                    #keyID = id(getattr(self, key))
-                    objID = getattr(self, key)
-                    print("SAVE", key)
-                    #sm = SharedMemory(name=key, size=len(keyID))
-                    #sm.buf = keyID
-                    sm = SharedMemory(name=key, create=True, size=objID.__sizeof__())
-                    sm.buf = objID
-                    print(repr(sm.buf))
-                except: 
-                    continue
-            
-            #rv["self"] = id(self)
-
-            return keys
-
+        return rv
+        '''
+    
     def __setstate__(self, state):
-        
-        with open('logLoad.txt', 'a') as f:
-            faulthandler.enable(file=f)
+        pass
 
-            for key in state:
-                print("LOAD", key)
-                #setattr(self, key, ctypes.cast(state.get(key), ctypes.py_object).value)
-                sm = SharedMemory(name=key)
-                print(sm.buf)
-                keyID = sm.buf
-                setattr(self, key, ctypes.cast(keyID, ctypes.py_object.value))
+    def getAttrsAddresses(self):
+        
+        rv = {}
+        keys = ['engineSettings', 'appSettings', 'window', 'loadedAddons', *(addon for addon in self.appSettings.addons.keys() if self.appSettings.addons.get(addon)), 'GUIThread', 'audioThread', 'controlsThread', 'updateThread', 'internetThread', 'appThread', 'threads']
+        
+        for key in keys:
+
+            try:
+                keyID = id(getattr(self, key))
+                rv[key] = keyID
+            except Exception as e:
+                continue
+
+        return rv
 
     def __init__(self):
 
         self.loadSettings()
-        self.window = Window()
         self.loadedAddons = self.loadAddons()
+        self.window = Window()
 
     def initThreads(self):
+        with open("NEWIDEATEST.txt", 'a') as f:
+            print('Defaut engine address', str(id(self)), file=f)
+            print('Defaut appSettings address', str(id(self.appSettings)), file=f)
 
-        self.GUIThread = GUIThread(id(self), threadName='GUI')
-        self.audioThread = audioThread(id(self), threadName='Audio', threads=[], address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks, delay=0)
-        self.controlsThread = controlsThread(id(self), threadName='Controls', mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
-        self.updateThread = updateThread(id(self), threadName='Update', i=0, tasks=[], pausedGroups=[], updateFrequency=self.engineSettings.updateFrequency)
-        self.internetThread = internetThread(id(self), threadName='Internet')
+        self.GUIThread = GUIThread(threadName='GUI')
+        self.audioThread = audioThread(threadName='Audio', threads=[], address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks, delay=0)
+        self.controlsThread = controlsThread(threadName='Controls', mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
+        self.updateThread = updateThread(threadName='Update', i=0, tasks=[], pausedGroups=[], updateFrequency=self.engineSettings.updateFrequency)
+        self.internetThread = internetThread(threadName='Internet')
 
         self.appThread = None
 
         self.threads = [self.GUIThread, self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
         
     def start(self):
+   
+        for addon in self.loadedAddons.keys(): self.loadedAddons.get(addon).getEngine(id(self), self.__dict__)
+        for thread in self.threads: thread.getEngine(id(self), self.__dict__)
 
         for thread in self.threads: thread.start()
-        
+
         self.window.run()
 
     def loadAddons(self):
@@ -95,7 +90,7 @@ class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
                 
                 classObject = getattr(addonModule, addon)
                 
-                rv[addon] = classObject(id(self), addon)
+                rv[addon] = classObject(addon)
                 
         return rv
 

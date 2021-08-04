@@ -4,15 +4,7 @@ from kivy.config import Config
 class Settings:
 
     def __reduce__(self):
-        print("HERE_3")
-        return(self.__class__, ())
-
-    def __getstate__(self):
-        print("HERE1")
-        return 'Something'
-
-    def __setstate__(self, state):
-        print("HERE2", str(state))
+        (self.__class__, ())
 
     def __init__(self, settingsType):
 

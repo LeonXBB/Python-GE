@@ -1,4 +1,3 @@
-from engine.JSONFile import JSONFile
 from engine.threadClass import threadClass
 
 class controlsThread(threadClass):

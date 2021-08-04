@@ -3,9 +3,9 @@ from engine.Addon import Addon
 
 class ShowIntro(Addon):
     
-    def __init__(self, engineAddress, name):
+    def __init__(self, name):
 
-        super().__init__(engineAddress, name)
+        super().__init__(name)
         
         self.threadsConcerned = ['GUI']
         self.relatedFlags = {}

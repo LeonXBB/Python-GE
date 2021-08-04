@@ -1,23 +1,35 @@
 import multiprocessing
+import threading
 import ctypes
 
 class threadClass(multiprocessing.Process):
+#class threadClass(threading.Thread):
 
-    def __init__(self, engineAddress, **kwargs):
+    def __init__(self, **kwargs):
         
         super().__init__(target=self.loop, args=(self,))
         
         self.update(**kwargs)
 
-        self.engine = ctypes.cast(engineAddress, ctypes.py_object).value
-        #self.addons = self.getAddons()
-
-        self.currentAddon = None
+        self.engine = None
 
         self.daemon = True
         self.threadStopFlag = False
         self.threadLoopOverWrittenFlag = False
 
+    def getEngine(self, engineAddress, newDict):
+
+        self.engine = ctypes.cast(engineAddress, ctypes.py_object).value
+        self.engine.__dict__.update(newDict)
+        self.addons = self.getAddons()
+        self.currentAddon = None
+
+        with open("NEWIDEATEST.txt", 'a') as f:
+            print('New Thread name', self.threadName, file=f)
+            print('New Thread engine address', str(id(self.engine)), file=f)
+            print('New Thread appSettings address', str(id(self.engine.appSettings)), file=f)
+            print('New Thread engine dict', str(self.engine.__dict__), file=f)
+     
     def update(self, **kwargs):
         
         for kwarg in kwargs:
@@ -61,9 +73,14 @@ class threadClass(multiprocessing.Process):
 
     def waitForOtherThreads(self):
         
-        #print(self.threadName,  str(self.engine.__dict__))
+        i = 0
 
-        while not hasattr(self.engine, 'threads') or len(self.engine.threads < 5):
-            pass
+        while self.engine is None or not hasattr(self.engine, 'threads') or len(self.engine.threads) < 5:
+            if i == 0: 
+                with open("NEWIDEATEST.txt", 'a') as f:
+                    print('SELF DICT', str(self.__dict__), file=f)
+                    print('SELF ENGINE DICT', str(self.engine.__dict__), file=f)
+                i+=1
+            else: pass
 
         print('here')

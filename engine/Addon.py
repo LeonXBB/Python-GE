@@ -2,13 +2,16 @@ import ctypes
 
 class Addon:
 
-    def __init__(self, engineAddress, name):
+    def __init__(self, name):
 
-        self.engine = ctypes.cast(engineAddress, ctypes.py_object).value
         self.name = name
-
         self.addonStoppedFlag = False
         self.addonBeingExecutedFlag = False
+
+    def getEngine(self, engineAddress, dict):
+
+        self.engine = ctypes.cast(engineAddress, ctypes.py_object).value
+        self.engine.__dict__.update(dict)
 
     def ensureFlags(self):    
         

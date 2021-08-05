@@ -3,6 +3,9 @@ import json
 
 class JSONFile:
 
+    def __reduce__(self):
+        (self.__class__, ())
+
     def __init__(self, type, address=None):
 
         self.type = type

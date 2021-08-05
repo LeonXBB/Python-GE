@@ -57,7 +57,7 @@ class GUIThread(threadClass):
         self.engine.updateThread.addTask({"task": "self.engine.audioThread.playAllTracksFlag = [True, True]", "group": "Audio"})'''
 
     def loop(self, dt):
-        
+            
         self.waitForOtherThreads()
         #self.screenManagerPassedFlag = False 
 

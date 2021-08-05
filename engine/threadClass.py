@@ -21,13 +21,13 @@ class threadClass(multiprocessing.Process):
 
         self.engine = ctypes.cast(engineAddress, ctypes.py_object).value
         self.engine.__dict__.update(newDict)
-        self.addons = self.getAddons()
-        self.currentAddon = None
+        #self.newDict = newDict
+        #self.addons = self.getAddons()
+        #self.currentAddon = None
 
         with open("NEWIDEATEST.txt", 'a') as f:
             print('New Thread name', self.threadName, file=f)
             print('New Thread engine address', str(id(self.engine)), file=f)
-            print('New Thread appSettings address', str(id(self.engine.appSettings)), file=f)
             print('New Thread engine dict', str(self.engine.__dict__), file=f)
      
     def update(self, **kwargs):
@@ -79,8 +79,14 @@ class threadClass(multiprocessing.Process):
             if i == 0: 
                 with open("NEWIDEATEST.txt", 'a') as f:
                     print('SELF DICT', str(self.__dict__), file=f)
-                    print('SELF ENGINE DICT', str(self.engine.__dict__), file=f)
+                    #print("SELF FUNCTION DICT", str(self.newDict), file=f)
+                    if self.engine is not None: print('SELF ENGINE DICT', str(self.engine.__dict__), file=f)
                 i+=1
             else: pass
 
         print('here')
+
+    def loop(self, dt):
+
+        self.waitForOtherThreads()
+        while True: pass

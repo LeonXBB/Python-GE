@@ -1,7 +1,4 @@
 import importlib
-import ctypes
-from multiprocessing.shared_memory import SharedMemory
-import faulthandler
 
 from engine.JSONFile import JSONFile as JSONFile
 from engine.Settings import Settings as Settings
@@ -13,9 +10,15 @@ from engine.core.Controls import controlsThread as controlsThread
 from engine.core.Update import updateThread as updateThread
 from engine.core.Internet import internetThread as internetThread
 
+from engine.threadClass import threadClass
+
 from engine.gfx.Window import Window
 
 class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
+
+    '''def __reduce__(self):
+        print('here')
+        return (self.__class__,())'''
 
     def __getstate__(self):
         pass
@@ -34,7 +37,7 @@ class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
     def getAttrsAddresses(self):
         
         rv = {}
-        keys = ['engineSettings', 'appSettings', 'window', 'loadedAddons', *(addon for addon in self.appSettings.addons.keys() if self.appSettings.addons.get(addon)), 'GUIThread', 'audioThread', 'controlsThread', 'updateThread', 'internetThread', 'appThread', 'threads']
+        keys = ['engineSettings', 'appSettings', 'window', 'loadedAddons', *(addon for addon in self.appSettings.addons.keys() if self.appSettings.addons.get(addon)), 'dummyThread', 'GUIThread', 'audioThread', 'controlsThread', 'updateThread', 'internetThread', 'appThread', 'threads']
         
         for key in keys:
 
@@ -49,14 +52,12 @@ class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
     def __init__(self):
 
         self.loadSettings()
-        self.loadedAddons = self.loadAddons()
+        #self.loadedAddons = self.loadAddons()
         self.window = Window()
 
     def initThreads(self):
-        with open("NEWIDEATEST.txt", 'a') as f:
-            print('Defaut engine address', str(id(self)), file=f)
-            print('Defaut appSettings address', str(id(self.appSettings)), file=f)
 
+        #self.dummyThread = threadClass(threadName='dummy')
         self.GUIThread = GUIThread(threadName='GUI')
         self.audioThread = audioThread(threadName='Audio', threads=[], address=self.engineSettings.audioDefaultAddress, volume=self.engineSettings.audioVolume, extension=self.engineSettings.audioDefaultExtension, excludedTracks=self.appSettings.audioExcludedTracks, delay=0)
         self.controlsThread = controlsThread(threadName='Controls', mapKeysFunctions=self.appSettings.mapKeysFunctions, mapFunctionInstructions=JSONFile('keysMap'))
@@ -65,11 +66,16 @@ class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
 
         self.appThread = None
 
+        #self.threads = [self.dummyThread, self.GUIThread, self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
         self.threads = [self.GUIThread, self.audioThread, self.controlsThread, self.updateThread, self.internetThread]
-        
+
+        with open("NEWIDEATEST.txt", 'a') as f:
+            print('Default engine address', str(id(self)), file=f)
+            print('Default engine dict', str(self.__dict__), file=f)
+
     def start(self):
-   
-        for addon in self.loadedAddons.keys(): self.loadedAddons.get(addon).getEngine(id(self), self.__dict__)
+
+        #for addon in self.loadedAddons.keys(): self.loadedAddons.get(addon).getEngine(id(self), self.__dict__)
         for thread in self.threads: thread.getEngine(id(self), self.__dict__)
 
         for thread in self.threads: thread.start()
@@ -93,6 +99,9 @@ class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
                 rv[addon] = classObject(addon)
                 
         return rv
+
+    def getObject(self, objectName):
+        return id(getattr(self, objectName))
 
     def changeSettings(self): #TODO write it
         pass

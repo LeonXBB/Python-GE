@@ -29,7 +29,7 @@ class updateThread(threadClass):
             return value * self.updateFrequency
 
     def loop(self, dt):
-        
+            
         self.waitForOtherThreads()
 
         while True:

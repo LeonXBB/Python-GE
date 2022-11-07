@@ -54,8 +54,8 @@ class Text(Widget):
     def getWidgetReady(self):
 
         def init(self):
-
-            self.widget = GridLayout(size=self.widgetSize, pos=self.switchCoordinates(self.widgetPos, 'percentage','pixels'))
+            #self.widget = GridLayout(size_hint=self.widgetSize, pos_hint=self.switchCoordinates(self.widgetPos, 'percentage','pixels'))
+            self.widget = GridLayout( )
 
         def getTextLength(self):
                

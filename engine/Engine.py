@@ -16,24 +16,6 @@ from engine.gfx.Window import Window
 
 class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
 
-    '''def __reduce__(self):
-        print('here')
-        return (self.__class__,())'''
-
-    def __getstate__(self):
-        pass
-
-        '''rv  = self.__dict__
-        for key in rv.keys():
-            if key != 'window':
-                rv[key] = None
-        
-        return rv
-        '''
-    
-    def __setstate__(self, state):
-        pass
-
     def getAttrsAddresses(self):
         
         rv = {}
@@ -52,7 +34,7 @@ class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
     def __init__(self):
 
         self.loadSettings()
-        #self.loadedAddons = self.loadAddons()
+        self.loadedAddons = self.loadAddons()
         self.window = Window()
 
     def initThreads(self):
@@ -75,7 +57,7 @@ class Engine: #settings, pipes, threads, addons, window - (clock, screenManager)
 
     def start(self):
 
-        #for addon in self.loadedAddons.keys(): self.loadedAddons.get(addon).getEngine(id(self), self.__dict__)
+        for addon in self.loadedAddons.keys(): self.loadedAddons.get(addon).getEngine(id(self), self.__dict__)
         for thread in self.threads: thread.getEngine(id(self), self.__dict__)
 
         for thread in self.threads: thread.start()

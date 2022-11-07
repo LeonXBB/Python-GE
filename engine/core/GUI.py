@@ -19,7 +19,9 @@ class GUIThread(threadClass):
         dx = widgetSize[0] / 100
         dy = widgetSize[1] / 100
 
-        for i in range(0, len(setCoords), 2):
+        print(setCoords, systemIn, systemOut, widgetSize, widgetPos, coordsLimits)
+
+        for i in range(0, len(setCoords)-1, 2):
             coords = [setCoords[i], setCoords[i+1]]
 
             if systemIn == 'percentage':
@@ -36,16 +38,17 @@ class GUIThread(threadClass):
                     rv.append((coords[0] - widgetPos[0]) / dx)
                     rv.append((coords[1] - widgetPos[1]) / dy)
 
+        print(rv)
+
         return rv
 
     def pushPastIntro(self):
 
-        '''sS = startingScreen(self.engine, True)
+        sS = startingScreen(engine=self.engine, autoLaunch=True)
         self.engine.window.screenManager.add_widget(sS)
         self.engine.window.screenManager.current = 'Starting Screen'''
-        pass
 
-    def showIntro(self):
+    #def showIntro(self):
 
         '''lS = loadingScreen(self.engine, True)
         self.engine.window.screenManager.add_widget(lS)

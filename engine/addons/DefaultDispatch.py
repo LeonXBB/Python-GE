@@ -1,4 +1,6 @@
+import functools
 from engine.Addon import Addon
+from engine.core.Update import Task
 
 class DefaultDispatch(Addon):
 
@@ -10,6 +12,14 @@ class DefaultDispatch(Addon):
         self.relatedFlags = {"Update": [["freezeExecution", False], ["clockStartedFlag", False], ["freezeTasksUpdate", False]]}
         self.autostart = True
         self.parameters = {}
+
+    def __get_flag__(self, flag_name, thread_name=None):
+        for flag in self.relatedFlags.get(thread_name if thread_name is not None else "", self.relatedFlags):
+            if flag[0] == flag_name: return flag[1]
+
+    def __set_flag__(self, flag_name, value, thread_name=None):
+        for flag in self.relatedFlags.get(thread_name if thread_name is not None else "", self.relatedFlags):
+            if flag[0] == flag_name: flag[1] = value
 
     def start(self):
         self._launch() 
@@ -25,9 +35,9 @@ class DefaultDispatch(Addon):
 
     def func(self):
 
-        def getInsertIndex(self, taskData, before=False): 
+        def getInsertIndex(taskData, before=False): 
         
-            indexes = [int(self.tasks[i].frame) for i in range(len(self.tasks))]
+            indexes = [int(self.engine.updateThread.tasks[i].frame) for i in range(len(self.engine.updateThread.tasks))]
             
             taskData[0] = int(taskData[0])
 
@@ -43,33 +53,35 @@ class DefaultDispatch(Addon):
                 if indexes[i] > taskData[0] and closestHigherIndex is None: closestHigherIndex = i
 
             if closestLowerIndex is None: closestLowerIndex = -1
-            if closestHigherIndex is None: closestHigherIndex = len(self.tasks)-1
+            if closestHigherIndex is None: closestHigherIndex = len(self.engine.updateThread.tasks)-1
 
             if before: rv = (startIndex if startIndex is not None else closestLowerIndex+1)
             else: rv = (endIndex+1 if endIndex is not None else closestHigherIndex+1)
 
             return rv
 
-        def addTask(self, task, before=False):
+        def addTask(task, before=False):
 
-            self.freezeExecution = True
+            print(self)
+
+            self.__set_flag__("freezeExecution", True, "Update")
             
             task = [task.get('frame'), task.get('task'), task.get('group')]
                 
-            if type(task[0]) == str and task[0][0] == '+': task[0] = self.i + int(task[0][1:]) 
+            if type(task[0]) == str and task[0][0] == '+': task[0] = self.engine.updateThread.i + int(task[0][1:]) 
             elif type(task[0]) == str and task[0][0] != '+': 
                 task[0] = str(eval(task[0]))
                 print('TASK 0: ', task[0])
 
-            if task[0] is None: task[0] = str(self.i+1)
+            if task[0] is None: task[0] = str(self.engine.updateThread.i+1)
 
             #print('INSERT INDEX: ', str(self.getInsertIndex(task, before)))
 
-            self.tasks.insert(self.getInsertIndex(task, before), Task(self, task[0], task[1], task[2]))
+            self.engine.updateThread.tasks.insert(getInsertIndex(task, before), Task(self, task[0], task[1], task[2]))
     
-            self.freezeExecution = False
+            self.__set_flag__("freezeExecution", False, "Update")
 
-        def removeTask(self, by, value):
+        def removeTask(by, value):
 
             '''
             Method to remove task from the list of tasks.
@@ -81,12 +93,12 @@ class DefaultDispatch(Addon):
             #TODO add more control, i.e ability to mix multiple "by", and add subparameters to specify how "value" should be treated with respect to "by". For example, if "by" == 'instruction", currently we will delete all instruction that are equal to "value". But what if they were added by for loop with a running index. We could set optional future parameter "equality" to strict / startsWith / endsWith etc. Optionally, we could leave it as low-level function and built some interface(s) on it.
             '''
             
-            for task in self.tasks:
+            for task in self.engine.updateThread.tasks:
                 
                 if getattr(task, by) == value:
-                    self.tasks.remove(task)
+                    self.engine.updateThread.tasks.remove(task)
 
-        def updateTasksOrder(self): #TODO write it
+        def updateTasksOrder(): #TODO write it
             
             '''
             Yet to be implemented method to restore correct tasks order should they mix up.
@@ -94,20 +106,20 @@ class DefaultDispatch(Addon):
 
             pass 
 
-        def getTasks(self):
+        def getTasks():
 
             rv = []
 
-            while len(self.tasks) > 0 and eval(str(self.tasks[0].frame)) <= self.i:
-                rv.append(self.tasks[0])
-                self.tasks.pop(0)
+            while len(self.engine.updateThread.tasks) > 0 and eval(str(self.engine.updateThread.tasks[0].frame)) <= self.engine.updateThread.i:
+                rv.append(self.engine.updateThread.tasks[0])
+                self.engine.updateThread.tasks.pop(0)
 
             return rv
 
-        def pauseGroups(self):
+        def pauseGroups():
 
-            for task in self.tasks:
-                for pausedGroup in self.pausedGroups:
+            for task in self.engine.updateThread.tasks:
+                for pausedGroup in self.engine.updateThread.pausedGroups:
                     if task.group in pausedGroup:
 
                         #print("PAUSE UPDATE, CURRENT FRAME: ", task.frame)
@@ -119,16 +131,14 @@ class DefaultDispatch(Addon):
                         else:
                             task.frame = '0+1+' + task.frame
                     
-                        #print("PAUSE UPDATE, UPDATED FRAME: ", task.frame)
-
         def execute(self, dt): #TODO add parallel processing to both receiving tasks and executing them
             
-            if not self.freezeExecution:
+            if not self.__get_flag__("freezeExecution", "Update"):
 
-                if not self.freezeTasksUpdate: 
-                    self.pauseGroups()
-                    tasksToDo = self.getTasks()
-                    self.freezeTasksUpdate = True
+                if not self.__get_flag__("freezeTasksUpdate", "Update"):
+                    pauseGroups()
+                    tasksToDo = getTasks()
+                    self.__set_flag__("freezeTasksUpdate", True, "Update")
                     #print("TASKS GOTTEN: ", str(tasksToDo))
                     for task in tasksToDo:
                         try:
@@ -141,7 +151,7 @@ class DefaultDispatch(Addon):
 
                     #print("CURRENT I: " + str(self.i+1))
                     #self.i += 1
-                    self.freezeTasksUpdate = False
+                    self.__set_flag__("freezeTasksUpdate", False, "Update")
 
             return True
 
@@ -152,10 +162,10 @@ class DefaultDispatch(Addon):
         setattr(self.engine.updateThread, 'getTasks', getTasks)
         setattr(self.engine.updateThread, 'pauseGroups', pauseGroups)
         setattr(self.engine.updateThread, 'execute', execute)
-
-        if not self.clockStartedFlag:
-            self.engine.window.clock.schedule_interval(self.incI, self.updateFrequency)
-            self.engine.window.clock.schedule_interval(self.execute, self.updateFrequency)
-            self.clockStartedFlag = True
+        
+        if not self.__get_flag__("clockStartedFlag", "Update"):
+            self.engine.window.clock.schedule_interval(self.engine.updateThread.incI, self.engine.updateThread.updateFrequency)
+            self.engine.window.clock.schedule_interval(functools.partial(execute,(self)), self.engine.updateThread.updateFrequency)
+            self.__set_flag__("clockStartedFlag", True, "Update")
 
         self.pause()

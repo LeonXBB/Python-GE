@@ -13,6 +13,7 @@ class Task:
         self.group = group
 
     def execute(self):
+        print(self.instruction)
         exec(self.instruction)
 
 class updateThread(threadClass):

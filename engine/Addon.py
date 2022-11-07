@@ -29,8 +29,10 @@ class Addon:
                             for flag in self.relatedFlags.get(threadName):
                                 setattr(subthread, flag[0], flag[1])
 
-    def _launch(self):
-        
+    def _launch(self, engine_address=None, dict=None):
+        if not hasattr(self, "engine"):
+            self.getEngine(engine_address, dict)
+
         self.addonStoppedFlag = False
         self.addonBeingExecutedFlag = True
         self.ensureFlags()

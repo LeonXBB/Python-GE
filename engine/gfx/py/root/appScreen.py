@@ -6,15 +6,14 @@ class appScreen(Screen):
 
     def __init__(self, **kwargs):
 
-        super().__init__(**kwargs)
+        super().__init__()
 
         self.update(**kwargs)
 
         if not hasattr(self, 'engine'): raise EnvironmentError
         
         if not hasattr(self, 'autoLaunch'): self.autoLaunch = False
-        if not hasattr(self, 'scene'): self.scene = Scene()
-
+        #if not hasattr(self, 'scene'): self.scene = Scene()
 
         if self.autoLaunch:
             self.load()

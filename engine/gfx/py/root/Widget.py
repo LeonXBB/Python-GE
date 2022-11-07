@@ -11,7 +11,7 @@ class Widget(kivyWidget):
         if not hasattr(self, 'engine'): raise EnvironmentError
 
         if not hasattr(self, "widgetSize"): self.widgetSize = [self.engine.engineSettings.windowWidth, self.engine.engineSettings.windowHeight, 1]
-        if not hasattr(self, "widgetPos"): self.widgetPos = [0, 0, 0]
+        if not hasattr(self, "widgetPos"): self.widgetPos = [0, 0, 0, 0]
         if not hasattr(self, "widgetPadding"): self.widgetPadding = [None, None, None, None]
         if not hasattr(self, "widgetSpacing"): self.widgetSpacing = [None, None]
         

@@ -1,4 +1,5 @@
 from os import getcwd
+from re import L
 from engine.Addon import Addon
 
 class ShowIntro(Addon):
@@ -10,7 +11,7 @@ class ShowIntro(Addon):
         self.threadsConcerned = ['GUI']
         self.relatedFlags = {}
         self.autostart = True
-        self.parameters = {"Background Music": False}
+        self.parameters = {"Background Music": True}
 
     def start(self):
         self._launch() 
@@ -32,7 +33,9 @@ class ShowIntro(Addon):
         import time 
         time.sleep(2.5)
         '''
-        self.engine.updateThread.addTask({"task": "self.engine.loadedAddons.get('ProcessKeyBoardKey').start()", "group": "Controls ShowIntro"})
+        while not hasattr(self.engine.updateThread, "addTask"):
+            pass
+        
         self.engine.updateThread.addTask({"task": "self.engine.GUIThread.pushPastIntro()", "group": "GUI ShowIntro"})
         
         if self.parameters.get('Background Music'):

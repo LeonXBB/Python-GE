@@ -5,15 +5,19 @@ from kivy.core.audio import SoundLoader
 import time
 
 class playThread(threadClass):
-    
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.getEngine(self.engine_id, self.engine_dict)
+
     def loop(self, dt):
 
         self.threadLoopOverWrittenFlag = True
         self.playThreadStopFlag = True
-        self.freezeAudioInsertFlag = False
+        #self.freezeAudioInsertFlag = False
 
         self.currentEndingIndex = self.engine.updateThread.i
-        self.filenamesToPlayQueue = []
+        #self.filenamesToPlayQueue = []
 
         self.copyFromMainThread()
 
@@ -63,6 +67,7 @@ class playThread(threadClass):
 
     def addPlayQueue(self):
 
+
         for i in range(len(self.filenamesToPlayQueue)):
             self.addTask(self.filenamesToPlayQueue[i])
 
@@ -102,6 +107,7 @@ class playThread(threadClass):
             self.audioObject = self.getAudioObject()
             self.audioObject.play()
             
+
             if self.engine.engineSettings.audioAppendOn == 'end' and len(self.filenamesToPlayQueue) > 1:
                 time.sleep(self.audioObject.length)
                 self.addTask(self.filenamesToPlayQueue[1])
@@ -136,7 +142,7 @@ class audioThread(threadClass):
             threadNumber = len(self.threads)
 
         while len(self.threads) <= threadNumber:
-            newPlayThread = playThread(self.engine, mainThread=self, threadName='Audio Thread ' + str(len(self.threads)))
+            newPlayThread = playThread(threadName='Audio Thread ' + str(len(self.threads)), mainThread=self, filenamesToPlayQueue=[], engine_id=id(self.engine), engine_dict=self.engine.__dict__, freezeAudioInsertFlag=False)
             self.threads.append(newPlayThread)
 
     def deleteThread_s_(self, threadNumber):

@@ -2,8 +2,8 @@ import multiprocessing
 import threading
 import ctypes
 
-class threadClass(multiprocessing.Process):
-#class threadClass(threading.Thread):
+#class threadClass(multiprocessing.Process):
+class threadClass(threading.Thread):
 
     def __init__(self, **kwargs):
         
@@ -21,9 +21,10 @@ class threadClass(multiprocessing.Process):
 
         self.engine = ctypes.cast(engineAddress, ctypes.py_object).value
         self.engine.__dict__.update(newDict)
-        #self.newDict = newDict
-        #self.addons = self.getAddons()
-        #self.currentAddon = None
+        self.engineAddress = engineAddress
+        self.newDict = newDict
+        self.addons = self.getAddons()
+        self.currentAddon = None
 
         with open("NEWIDEATEST.txt", 'a') as f:
             print('New Thread name', self.threadName, file=f)
@@ -83,8 +84,6 @@ class threadClass(multiprocessing.Process):
                     if self.engine is not None: print('SELF ENGINE DICT', str(self.engine.__dict__), file=f)
                 i+=1
             else: pass
-
-        print('here')
 
     def loop(self, dt):
 
